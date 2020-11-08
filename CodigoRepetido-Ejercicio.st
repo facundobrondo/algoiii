@@ -21,10 +21,22 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'NR 4/3/2019 10:50:19'!
+!CustomerBookTest methodsFor: 'tests-utils' stamp: 'ao 11/8/2020 00:30:03'!
+executeBlock: closure TakeNoMoreThan: time
+
+       | millisecondsBeforeRunning millisecondsAfterRunning |
+
+	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
+	closure value.
+	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (time * millisecond).! !
+
+
+!CustomerBookTest methodsFor: 'tests' stamp: 'ao 11/8/2020 00:36:27'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
+"	| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
 	
 	customerBook := CustomerBook new.
 	
@@ -32,14 +44,24 @@ test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 	customerBook addCustomerNamed: 'John Lennon'.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (50 * millisecond)
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (50 * millisecond)"
+	
+	| customerBook addCustomerJohnLennon |
+	
+	customerBook  := CustomerBook new.
+	
+	addCustomerJohnLennon := [customerBook addCustomerNamed: 'John Lennon'].
+	
+	self executeBlock: addCustomerJohnLennon TakeNoMoreThan: 50.
+	
+	
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'NR 4/3/2019 10:50:13'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'ao 11/8/2020 00:49:56'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
+"	| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
@@ -50,9 +72,19 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	customerBook removeCustomerNamed: paulMcCartney.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (100 * millisecond)
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (100 * millisecond)"
 	
-! !
+	| customerBook removeCustomerNamedPaulMcCartney paulMcCartney |
+	
+	customerBook := CustomerBook new.
+	paulMcCartney := 'Paul McCartney'.
+	customerBook addCustomerNamed: paulMcCartney.
+	
+	removeCustomerNamedPaulMcCartney := [customerBook removeCustomerNamed: paulMcCartney.].
+	
+	self executeBlock: removeCustomerNamedPaulMcCartney TakeNoMoreThan: 100.
+	
+	! !
 
 !CustomerBookTest methodsFor: 'tests' stamp: 'HernanWilkinson 5/9/2012 18:12'!
 test03CanNotAddACustomerWithEmptyName 
@@ -184,10 +216,10 @@ addCustomerNamed: aName
 	
 	active add: aName ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'ao 11/8/2020 01:47:32'!
 removeCustomerNamed: aName 
- 
-	1 to: active size do: 
+| deletedCustomerName | 
+"	1 to: active size do: 
 	[ :index |
 		aName = (active at: index)
 			ifTrue: [
@@ -204,8 +236,16 @@ removeCustomerNamed: aName
 				^ aName 
 			] 
 	].
+
+	^ NotFound signal."
 	
+	deletedCustomerName := active removeByName: aName.
+	( deletedCustomerName ~= false ) ifTrue: [^aName].
+	deletedCustomerName := suspended removeByName: aName.
+	( deletedCustomerName ~= false ) ifTrue: [^aName].
 	^ NotFound signal.
+	
+	
 ! !
 
 !CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
