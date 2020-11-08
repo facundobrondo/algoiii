@@ -21,6 +21,12 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
+!CustomerBookTest methodsFor: 'tests-utils' stamp: 'ao 11/8/2020 03:13:32'!
+exceptionThrowBy: collaboration WithError: error Verification: verification
+	[ collaboration value . self fail. ]
+	on: error
+	do: [ :anError | verification value: anError ].! !
+
 !CustomerBookTest methodsFor: 'tests-utils' stamp: 'ao 11/8/2020 00:30:03'!
 executeBlock: closure TakeNoMoreThan: time
 
@@ -86,21 +92,28 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	
 	! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'HernanWilkinson 5/9/2012 18:12'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'ao 11/8/2020 03:12:59'!
 test03CanNotAddACustomerWithEmptyName 
 
 	| customerBook |
 			
 	customerBook := CustomerBook new.
 
+	self exceptionThrowBy: [ customerBook addCustomerNamed: ''. ]
+	WithError: Error 
+	Verification: [		:anError | self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
+                           self assert: customerBook isEmpty. ].
+"
 	[ customerBook addCustomerNamed: ''.
 	self fail ]
 		on: Error 
 		do: [ :anError | 
 			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
-			self assert: customerBook isEmpty ]! !
+			self assert: customerBook isEmpty ]
+"		
+! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'HAW 8/28/2017 08:57:25'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'ao 11/8/2020 03:14:13'!
 test04CanNotRemoveAnInvalidCustomer
 	
 	| customerBook johnLennon |
@@ -109,13 +122,18 @@ test04CanNotRemoveAnInvalidCustomer
 	johnLennon := 'John Lennon'.
 	customerBook addCustomerNamed: johnLennon.
 	
+	self exceptionThrowBy:  [ customerBook removeCustomerNamed: 'Paul McCartney']
+	WithError: NotFound
+	Verification: [ :anError | self assert: customerBook numberOfCustomers = 1.
+			    self assert: (customerBook includesCustomerNamed: johnLennon) ].
+"	
 	[ customerBook removeCustomerNamed: 'Paul McCartney'.
 	self fail ]
 		on: NotFound 
 		do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
-! !
+"! !
 
 !CustomerBookTest methodsFor: 'tests' stamp: 'NR 4/3/2019 10:50:25'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
