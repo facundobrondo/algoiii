@@ -139,6 +139,22 @@ test18
 	
 	! !
 
+!MarsRoverTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/6/2020 18:05:07'!
+test19
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
+	
+	
+	self should: [ marsRover processCommands: 'flarb' ] 
+	raise: Error 
+	asserting: [ :anError | self assert: anError messageText = MarsRover invalidCommand ].
+	
+	self assert: ( marsRover isAt: (-1@0) ).
+	self assert: ( marsRover isPointingTo: #S ).
+	
+	! !
+
 !MarsRoverTest methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 15:22:25'!
 test2
 	
