@@ -268,10 +268,35 @@ isPointingTo: aCardinalPoint
 
 	^ cardinalPoint = aCardinalPoint ! !
 
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 17:02:09'!
-processCommand: command
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:50:41'!
+newOrientation: aCardinalPoint
 
-	command = 'f' ifTrue: [ 
+	cardinalPoint := aCardinalPoint ! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:45:13'!
+newPosition: aPosition
+
+	point := aPosition ! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:41:31'!
+orientation
+
+	^cardinalPoint ! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:44:35'!
+position
+
+	^point ! !
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:57:05'!
+processCommand: aCommand
+
+	| command |
+	
+	command := MarsRoverCommands createFor: aCommand.
+	command executeCommandFor: self.
+
+	"command = 'f' ifTrue: [ 
 		cardinalPoint = #N ifTrue: [^point := point + (0@1)].
 		cardinalPoint = #E ifTrue: [^point := point + (1@0)].
 		cardinalPoint = #O ifTrue: [^point := point + (-1@0)].
@@ -296,7 +321,7 @@ processCommand: command
 		cardinalPoint = #O ifTrue: [ ^cardinalPoint := #S ].
 	].
 	command = '' ifTrue: [^nil].	
-	self signalInvalidCommand.
+	self signalInvalidCommand."
 		! !
 
 !MarsRover methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 17:32:11'!
@@ -324,3 +349,179 @@ createOn: aPoint pointingTo: aCardinalPoint
 invalidCommand
 	
 	^ 'The command is invalid'! !
+
+
+!classDefinition: #MarsRoverCommands category: 'MarsRover'!
+Object subclass: #MarsRoverCommands
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MarsRoverCommands class' category: 'MarsRover'!
+MarsRoverCommands class
+	instanceVariableNames: ''!
+
+!MarsRoverCommands class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:06:04'!
+createFor: aCommand
+
+	|subClassToInstantiate|
+
+	subClassToInstantiate := self allSubclasses detect: [ :aSubclass | aSubclass canHandle: aCommand ].
+	^subClassToInstantiate new
+	! !
+
+
+!classDefinition: #GoBackward category: 'MarsRover'!
+MarsRoverCommands subclass: #GoBackward
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!GoBackward methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:45:24'!
+executeCommandFor: marsRover
+
+	"cardinal := Cardinal create: marsRover orientation 
+	cardinal xxxx: marsRover"
+	marsRover orientation = #N ifTrue: [ ^marsRover newPosition: marsRover position + (0@-1)	 ].
+	marsRover orientation = #E ifTrue: [ ^marsRover newPosition: marsRover position + (-1@0)	 ].
+	marsRover orientation = #O ifTrue: [ ^marsRover newPosition: marsRover position + (1@0)	 ].
+	marsRover orientation = #S ifTrue: [ ^marsRover newPosition: marsRover position + (0@1)	 ].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'GoBackward class' category: 'MarsRover'!
+GoBackward class
+	instanceVariableNames: ''!
+
+!GoBackward class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:24:38'!
+canHandle: aCommand
+
+	^ aCommand = 'b'! !
+
+
+!classDefinition: #GoForward category: 'MarsRover'!
+MarsRoverCommands subclass: #GoForward
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!GoForward methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:30:34'!
+executeCommandFor: marsRover
+	marsRover orientation = #N ifTrue: [ ^marsRover newPosition: marsRover position + (0@1)	 ].
+	marsRover orientation = #E ifTrue: [ ^marsRover newPosition: marsRover position + (1@0)	 ].
+	marsRover orientation = #O ifTrue: [ ^marsRover newPosition: marsRover position + (-1@0)	 ].
+	marsRover orientation = #S ifTrue: [ ^marsRover newPosition: marsRover position + (0@-1)	 ].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'GoForward class' category: 'MarsRover'!
+GoForward class
+	instanceVariableNames: ''!
+
+!GoForward class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:25:02'!
+canHandle: aCommand
+
+	^ aCommand = 'f'! !
+
+
+!classDefinition: #InvalidCommand category: 'MarsRover'!
+MarsRoverCommands subclass: #InvalidCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!InvalidCommand methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:52:04'!
+executeCommandFor: marsRover
+	marsRover signalInvalidCommand! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'InvalidCommand class' category: 'MarsRover'!
+InvalidCommand class
+	instanceVariableNames: ''!
+
+!InvalidCommand class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:25:12'!
+canHandle: aCommand
+
+	^ (( 'fbrl' includes: aCommand ) not ) and:[ ( '' ~= aCommand )]! !
+
+
+!classDefinition: #NullCommand category: 'MarsRover'!
+MarsRoverCommands subclass: #NullCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!NullCommand methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 22:53:50'!
+executeCommandFor: marsRover
+! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'NullCommand class' category: 'MarsRover'!
+NullCommand class
+	instanceVariableNames: ''!
+
+!NullCommand class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:25:18'!
+canHandle: aCommand
+
+	^ aCommand = ''! !
+
+
+!classDefinition: #TurnLeft category: 'MarsRover'!
+MarsRoverCommands subclass: #TurnLeft
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!TurnLeft methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:29:40'!
+executeCommandFor: marsRover
+	marsRover orientation = #N ifTrue: [ ^marsRover newOrientation: #O ].
+	marsRover orientation = #E ifTrue: [ ^marsRover newOrientation: #N ].
+	marsRover orientation = #O ifTrue: [ ^marsRover newOrientation: #S ].
+	marsRover orientation = #S ifTrue: [ ^marsRover newOrientation: #E ].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TurnLeft class' category: 'MarsRover'!
+TurnLeft class
+	instanceVariableNames: ''!
+
+!TurnLeft class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:25:25'!
+canHandle: aCommand
+
+	^ aCommand = 'l'! !
+
+
+!classDefinition: #TurnRight category: 'MarsRover'!
+MarsRoverCommands subclass: #TurnRight
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover'!
+
+!TurnRight methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:29:50'!
+executeCommandFor: marsRover
+	marsRover orientation = #N ifTrue: [ ^marsRover newOrientation: #E ].
+	marsRover orientation = #E ifTrue: [ ^marsRover newOrientation: #S ].
+	marsRover orientation = #O ifTrue: [ ^marsRover newOrientation: #N ].
+	marsRover orientation = #S ifTrue: [ ^marsRover newOrientation: #O ].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'TurnRight class' category: 'MarsRover'!
+TurnRight class
+	instanceVariableNames: ''!
+
+!TurnRight class methodsFor: 'as yet unclassified' stamp: 'ao 12/6/2020 23:25:39'!
+canHandle: aCommand
+
+	^ aCommand = 'r'! !
