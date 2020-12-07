@@ -15,8 +15,8 @@ should: anInvalidBlock raise: error asserting: aBlockToTest
 	! !
 
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:17:03'!
-test0
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:04:59'!
+test00MarsRoverDoesNothingWhenIssuedNoCommands
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
@@ -26,8 +26,8 @@ test0
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: ( marsRover isPointingTo: #N )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:12:28'!
-test1
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:07:03'!
+test01ForwardCommandMovesMarsRoverNorthWhenPointingToNorth
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
@@ -37,8 +37,96 @@ test1
 	self assert: ( marsRover isAt: (0@1) ).
 	self assert: (marsRover isPointingTo: #N )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:03:38'!
-test10
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:07:23'!
+test02ForwardCommandMovesMarsRoverEastWhenPointingToEast
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
+	
+	marsRover processCommand: 'f'.
+	
+	self assert: ( marsRover isAt: (1@0) ).
+	self assert: (marsRover isPointingTo: #E )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:07:45'!
+test03ForwardCommandMovesMarsRoverWestWhenPointingToWest
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
+	
+	marsRover processCommand: 'f'.
+	
+	self assert: ( marsRover isAt: ( -1@0) ).
+	self assert: (marsRover isPointingTo: #O )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:08:12'!
+test04ForwardCommandMovesMarsRoverSouhtWhenPointingToSouth
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
+	
+	marsRover processCommand: 'f'.
+	
+	self assert: ( marsRover isAt: ( 0@-1) ).
+	self assert: (marsRover isPointingTo: #S )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:08:47'!
+test05BackwardCommandMovesMarsRoverSouthWhenPointingToNorth
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
+	
+	marsRover processCommand: 'b'.
+	
+	self assert: ( marsRover isAt: (0@-1) ).
+	self assert: (marsRover isPointingTo: #N )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:09:07'!
+test06BackwardCommandMovesMarsRoverWestWhenPointingToEast
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
+	
+	marsRover processCommand: 'b'.
+	
+	self assert: ( marsRover isAt: (-1@0) ).
+	self assert: (marsRover isPointingTo: #E )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:09:42'!
+test07BackwardCommandMovesMarsRoverEastWhenPointingToWest
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
+	
+	marsRover processCommand: 'b'.
+	
+	self assert: ( marsRover isAt: (1@0) ).
+	self assert: (marsRover isPointingTo: #O )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:10:21'!
+test08BackwardCommandMovesMarsRoverNorthWhenPointingToSouth
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
+	
+	marsRover processCommand: 'b'.
+	
+	self assert: ( marsRover isAt: (0@1) ).
+	self assert: (marsRover isPointingTo: #S )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:11:14'!
+test09RightCommandTurnsMarsRoverEastWhenPointingToNorth
+	
+	| marsRover |
+	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
+	
+	marsRover processCommand: 'r'.
+	
+	self assert: ( marsRover isAt: (0@0) ).
+	self assert: (marsRover isPointingTo: #E )! !
+
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:11:53'!
+test10RightCommandTurnsMarsRoverSouthWhenPointingToEast
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
@@ -48,8 +136,8 @@ test10
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #S )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:09:56'!
-test11
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:12:16'!
+test11RightCommandTurnsMarsRoverWestWhenPointingToSouth
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
@@ -59,8 +147,8 @@ test11
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #O )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:10:30'!
-test12
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:12:49'!
+test12RightCommandTurnsMarsRoverNorthWhenPointingToWest
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
@@ -70,8 +158,8 @@ test12
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #N )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:17:29'!
-test13
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:13:15'!
+test13LeftCommandTurnsMarsRoverWestWhenPointingToNorth
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
@@ -81,8 +169,8 @@ test13
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #O )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:18:47'!
-test14
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:15:49'!
+test14LeftCommandTurnsMarsRoverNorthWhenPointingToEast
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
@@ -92,8 +180,8 @@ test14
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #N )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:19:57'!
-test15
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:16:12'!
+test15LeftCommandTurnsMarsRoverEastWhenPointingToSouth
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
@@ -103,8 +191,8 @@ test15
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #E )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 16:20:48'!
-test16
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:16:38'!
+test16LeftCommandTurnsMarsRoverSouthWhenPointingToWest
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
@@ -114,8 +202,8 @@ test16
 	self assert: ( marsRover isAt: (0@0) ).
 	self assert: (marsRover isPointingTo: #S )! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 17:09:17'!
-test17
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:17:24'!
+test17MarsRoverRaisesAnErrorWhenIssuedAnInvalidCommand
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
@@ -126,8 +214,8 @@ test17
 	
 	! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 17:46:14'!
-test18
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:19:00'!
+test18MarsRoverEntirelyProcessesAStreamOfValidCommands
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
@@ -140,8 +228,8 @@ test18
 	
 	! !
 
-!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/6/2020 18:05:07'!
-test19
+!MarsRoverTest methodsFor: 'tests' stamp: 'PDG 12/7/2020 10:21:05'!
+test19MarsRoverProcessesAStreamOfCommandsUpToAnInvalidOneAndStopsProcessing
 	
 	| marsRover |
 	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
@@ -155,94 +243,6 @@ test19
 	self assert: ( marsRover isPointingTo: #S ).
 	
 	! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:22:25'!
-test2
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
-	
-	marsRover processCommand: 'f'.
-	
-	self assert: ( marsRover isAt: (1@0) ).
-	self assert: (marsRover isPointingTo: #E )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:25:16'!
-test3
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
-	
-	marsRover processCommand: 'f'.
-	
-	self assert: ( marsRover isAt: ( -1@0) ).
-	self assert: (marsRover isPointingTo: #O )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:25:59'!
-test4
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
-	
-	marsRover processCommand: 'f'.
-	
-	self assert: ( marsRover isAt: ( 0@-1) ).
-	self assert: (marsRover isPointingTo: #S )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:48:08'!
-test5
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
-	
-	marsRover processCommand: 'b'.
-	
-	self assert: ( marsRover isAt: (0@-1) ).
-	self assert: (marsRover isPointingTo: #N )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:55:09'!
-test6
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #E.
-	
-	marsRover processCommand: 'b'.
-	
-	self assert: ( marsRover isAt: (-1@0) ).
-	self assert: (marsRover isPointingTo: #E )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:56:48'!
-test7
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #O.
-	
-	marsRover processCommand: 'b'.
-	
-	self assert: ( marsRover isAt: (1@0) ).
-	self assert: (marsRover isPointingTo: #O )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:57:49'!
-test8
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #S.
-	
-	marsRover processCommand: 'b'.
-	
-	self assert: ( marsRover isAt: (0@1) ).
-	self assert: (marsRover isPointingTo: #S )! !
-
-!MarsRoverTest methodsFor: 'tests' stamp: 'ao 12/6/2020 15:59:43'!
-test9
-	
-	| marsRover |
-	marsRover := MarsRover createOn: (0@0) pointingTo: #N.
-	
-	marsRover processCommand: 'r'.
-	
-	self assert: ( marsRover isAt: (0@0) ).
-	self assert: (marsRover isPointingTo: #E )! !
 
 
 !classDefinition: #MarsRover category: 'MarsRover'!
