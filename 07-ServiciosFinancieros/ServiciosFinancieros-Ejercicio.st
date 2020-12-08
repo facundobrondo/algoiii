@@ -188,6 +188,38 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 	self deny: (account hasRegistered: withdraw).
 ! !
 
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PDG 12/8/2020 17:00:22'!
+test07TransferMoneyFromAnAccountToAnotherOne
+
+	| account1 account2 amountToTransfer |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100 * peso on: account1.
+	Deposit register: 10 * peso on: account2.
+	amountToTransfer :=  73 * peso.
+	account1 transfer: amountToTransfer to: account2.
+	
+	self assert: 27 * peso equals: account1 balance.
+	self assert: 83 * peso equals: account2 balance.
+! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PDG 12/8/2020 17:12:33'!
+test08TransferAnAmountBiggerThanBalanceFromAnAccountToAnotherOneGeneratesOverdraftOnOriginAccount
+
+	| account1 account2 amountToTransfer |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 20 * peso on: account1.
+	Deposit register: 17 * peso on: account2.
+	amountToTransfer :=  71 * peso.
+	account1 transfer: amountToTransfer to: account2.
+	
+	self assert: -51 * peso equals: account1 balance.
+	self assert: 88 * peso equals: account2 balance.
+! !
+
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -420,6 +452,13 @@ hasRegistered: aTransaction
 register: aTransaction
 
 	transactions add: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/8/2020 17:08:22'!
+transfer: anAmount to: anAccount
+
+	Withdraw register: anAmount on: self.
+	Deposit register: anAmount on: anAccount.
 ! !
 
 
