@@ -189,6 +189,71 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 ! !
 
 
+!classDefinition: #TransferTest category: 'ServiciosFinancieros-Ejercicio'!
+TestCase subclass: #TransferTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:22:06'!
+test01
+
+	| accountTo accountFrom |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: accountTo.
+	Deposit register: 100*peso on: accountFrom.
+	
+	Transfer register: 0*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: 100*peso equals: accountTo balance.
+	self assert: 100*peso equals: accountFrom balance.
+	
+! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:22:30'!
+test02
+
+	| accountTo accountFrom |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: accountTo.
+	Deposit register: 100*peso on: accountFrom.
+	
+	Transfer register: 50*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: 150*peso equals: accountTo balance.
+	self assert: 50*peso equals: accountFrom balance.
+	
+! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:11:46'!
+test03
+
+	| accountTo accountFrom transfer |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 50*peso on: accountTo.
+	Deposit register: 50*peso on: accountFrom.
+	
+	transfer := Transfer register: 10*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: 10*peso equals: transfer value.
+	
+	
+! !
+
+
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: ''
@@ -439,3 +504,45 @@ addedTo: aPortfolio
 isComposedBy: anAccount
 
 	^self = anAccount ! !
+
+
+!classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
+Object subclass: #Transfer
+	instanceVariableNames: 'value'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:31:47'!
+initializeFor: aValue
+
+	value := aValue ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:12:02'!
+value
+
+	^ value! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Transfer class' category: 'ServiciosFinancieros-Ejercicio'!
+Transfer class
+	instanceVariableNames: ''!
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:31:32'!
+for: aValue
+
+	^ self new initializeFor: aValue ! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:47:29'!
+register: aValue from: accountFrom to: accountTo
+
+	| transfer |
+	
+	transfer := self for: aValue.
+	
+	Withdraw register: aValue on: accountFrom.
+	Deposit register: aValue on: accountTo.
+		
+	^transfer.
+	! !
