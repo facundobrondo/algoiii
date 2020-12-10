@@ -110,8 +110,8 @@ test06PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 			self assert: Portfolio canNotAddAccountErrorMessage equals: anError messageText.
 			self assert: portfolioToModify hasAccounts ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:23:54'!
-test07
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:08:17'!
+test07APortfolioWithASingleEmptyAccountHasZeroBalance
 
 	| account portfolio |
 	
@@ -120,8 +120,8 @@ test07
 	
 	self assert: 0*peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:30:54'!
-test08
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:28:08'!
+test08BalanceOfASimplePortfolioWithMultipleNonEmptyAccountsIsTheSumOfAllAcountsBalances
 
 	| account1 portfolio account2 |
 	
@@ -134,8 +134,8 @@ test08
 	
 	self assert: 200*peso equals: portfolio balance.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:40:05'!
-test09
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:11:51'!
+test09BalanceOfAComposedPortfolioWithMultipleNonEmptyAccountsIsTheSumOfAllAcountsBalances
 
 	| account1 account2 account3 simpleportfolio composedPortfolio |
 	
@@ -155,8 +155,8 @@ test09
 	
 	self assert: 600*peso equals: composedPortfolio balance.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:52:41'!
-test10
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:27:51'!
+test10ASimplePortfolioKnowsTheTransactionsRegisteredByItsAccounts
 
 	| account deposit portfolio withdraw |
 	
@@ -169,8 +169,8 @@ test10
 	self assert: ( portfolio hasRegistered: deposit ).
 	self assert: ( portfolio hasRegistered: withdraw ).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 04:24:56'!
-test11
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:26:09'!
+test11AComposedPortfolioKnowsTheTransactionsRegisteredByItsAccounts
 
 	| account1 account2 account3 simpleportfolio composedPortfolio deposit1 deposit2 deposit3 |
 	
@@ -192,8 +192,8 @@ test11
 	self assert: ( composedPortfolio hasRegistered: deposit2).
 	self assert: ( composedPortfolio hasRegistered: deposit3 ).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 04:27:45'!
-test12
+!PortfolioTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 16:23:19'!
+test12APortfolioDoesNotKnowUnregisteredTransactions
 
 	| account deposit portfolio |
 	
@@ -291,8 +291,8 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:22:06'!
-test01
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:29:11'!
+test01TransferOfNoMoneyDoesNotChangeBalanceOfTheAccounts
 
 	| accountTo accountFrom |
 	
@@ -310,8 +310,8 @@ test01
 	
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:22:30'!
-test02
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:43:36'!
+test02ATransferOfAnAmountCanBeDoneBetweenTwoAcounts
 
 	| accountTo accountFrom |
 	
@@ -329,8 +329,8 @@ test02
 	
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:11:46'!
-test03
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:39:38'!
+test03VerifyThatATransferAmountCanBeQueried
 
 	| accountTo accountFrom transfer |
 	
@@ -348,8 +348,8 @@ test03
 	
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:48:45'!
-test04
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:41:58'!
+test04BothPartsOfATransferCanBeRegistered
 
 	| accountTo accountFrom transfer |
 	
@@ -365,8 +365,8 @@ test04
 	self assert: ( accountFrom hasRegistered: transfer transferWithdraw ).
 	self assert: (accountTo hasRegistered: transfer transferDeposit ).! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:31:48'!
-test05
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:45:13'!
+test05AfterATransferEachPartCanQueryAboutItsCounterpart
 
 	| accountTo accountFrom transfer |
 	
@@ -381,6 +381,25 @@ test05
 	
 	self assert: transfer transferWithdraw = transfer transferDeposit counterpart.
 	self assert: transfer transferDeposit = transfer transferWithdraw counterpart.! !
+
+!TransferTest methodsFor: 'tests' stamp: 'PDG 12/10/2020 15:53:57'!
+test06ATransferOfAnAmountBiggerThanBalanceOfOriginAccountGeneratesAnOverdraft
+
+	| accountTo accountFrom |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: accountTo.
+	Deposit register: 50*peso on: accountFrom.
+	
+	Transfer register: 70*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: 170*peso equals: accountTo balance.
+	self assert: -20*peso equals: accountFrom balance.
+	
+! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -454,12 +473,13 @@ Deposit subclass: #TransferDeposit
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:33:39'!
+!TransferDeposit methodsFor: 'comparison' stamp: 'ao 12/10/2020 02:33:39'!
 = aTransferDeposit
 
 	^ aTransferDeposit value = value! !
 
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:30:52'!
+
+!TransferDeposit methodsFor: 'query' stamp: 'ao 12/10/2020 02:30:52'!
 counterpart
 	
 	^ TransferWithdraw for: value! !
@@ -507,12 +527,13 @@ Withdraw subclass: #TransferWithdraw
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:34:00'!
+!TransferWithdraw methodsFor: 'comparison' stamp: 'ao 12/10/2020 02:34:00'!
 = aTransferWithdraw
 
 	^ aTransferWithdraw value = value! !
 
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:31:13'!
+
+!TransferWithdraw methodsFor: 'query' stamp: 'ao 12/10/2020 02:31:13'!
 counterpart
 
 	^ TransferDeposit for: value! !
@@ -603,12 +624,12 @@ signalCanNotAddAccount
 	self error: self class canNotAddAccountErrorMessage! !
 
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 03:36:29'!
+!Portfolio methodsFor: 'protocol' stamp: 'ao 12/10/2020 03:36:29'!
 balance
 	
 	^accounts sum: [ :anAccount | 		anAccount balance 	]! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 04:30:49'!
+!Portfolio methodsFor: 'protocol' stamp: 'ao 12/10/2020 04:30:49'!
 hasRegistered: aTransaction
 
 	accounts do: [ :anAccount | (anAccount hasRegistered: aTransaction) = true ifTrue: [^true] ].
@@ -623,19 +644,20 @@ hasRegistered: aTransaction
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:48:55'!
+!Portfolio class methodsFor: 'private' stamp: 'HAW 5/25/2019 11:48:55'!
 canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:18:21'!
+
+!Portfolio class methodsFor: 'creation' stamp: 'HAW 5/25/2019 11:18:21'!
 with: anAccount
 
 	^self new 
 		add: anAccount;
 		yourself! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:23:59'!
+!Portfolio class methodsFor: 'creation' stamp: 'HAW 5/25/2019 11:23:59'!
 with: anAccount with: anotherAccount
 
 	^self new 
@@ -693,7 +715,7 @@ Object subclass: #Transfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:40:00'!
+!Transfer methodsFor: 'initialization' stamp: 'ao 12/10/2020 01:40:00'!
 initializeFor: aValue
 
 	value := aValue.
@@ -701,21 +723,21 @@ initializeFor: aValue
 	transferWithdraw := TransferWithdraw for: aValue.
 	! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:58:38'!
+
+!Transfer methodsFor: 'private' stamp: 'ao 12/10/2020 01:58:38'!
 transferDeposit
 	
 	^transferDeposit! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:58:23'!
+!Transfer methodsFor: 'private' stamp: 'ao 12/10/2020 01:58:23'!
 transferWithdraw
 	
 	^ transferWithdraw! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:12:02'!
+!Transfer methodsFor: 'private' stamp: 'ao 12/10/2020 01:12:02'!
 value
 
 	^ value! !
-
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -723,20 +745,19 @@ value
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:31:32'!
+!Transfer class methodsFor: 'creation' stamp: 'ao 12/10/2020 00:31:32'!
 for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:45:35'!
+!Transfer class methodsFor: 'creation' stamp: 'PDG 12/10/2020 15:35:35'!
 register: aValue from: accountFrom to: accountTo
 
-	| aTransfer aTransferWithdraw aTransferDeposit |
+	| aTransfer |
 		
-	aTransferWithdraw :=TransferWithdraw register: aValue on: accountFrom.
-	aTransferDeposit := TransferDeposit register: aValue on: accountTo.
+	TransferWithdraw register: aValue on: accountFrom.
+	TransferDeposit register: aValue on: accountTo.
 	
-	"aTransfer := self for: aValue transferWithdraw: aTransferWithdraw andTransferDeposit: aTransferDeposit ."
 	aTransfer := self for: aValue.
 		
 	^aTransfer.
