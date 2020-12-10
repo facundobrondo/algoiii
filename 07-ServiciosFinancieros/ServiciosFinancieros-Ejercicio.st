@@ -253,6 +253,40 @@ test03
 	
 ! !
 
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:48:45'!
+test04
+
+	| accountTo accountFrom transfer |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 50*peso on: accountTo.
+	Deposit register: 50*peso on: accountFrom.
+	
+	transfer := Transfer register: 10*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: ( accountFrom hasRegistered: transfer transferWithdraw ).
+	self assert: (accountTo hasRegistered: transfer transferDeposit ).! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:31:48'!
+test05
+
+	| accountTo accountFrom transfer |
+	
+	accountTo := ReceptiveAccount new.
+	accountFrom := ReceptiveAccount new.
+	
+	Deposit register: 50*peso on: accountTo.
+	Deposit register: 50*peso on: accountFrom.
+	
+	transfer := Transfer register: 10*peso from: accountFrom to: accountTo.
+	
+	
+	self assert: transfer transferWithdraw = transfer transferDeposit counterpart.
+	self assert: transfer transferDeposit = transfer transferWithdraw counterpart.! !
+
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -318,6 +352,24 @@ for: aValue
 	^ self new initializeFor: aValue ! !
 
 
+!classDefinition: #TransferDeposit category: 'ServiciosFinancieros-Ejercicio'!
+Deposit subclass: #TransferDeposit
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:33:39'!
+= aTransferDeposit
+
+	^ aTransferDeposit value = value! !
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:30:52'!
+counterpart
+	
+	^ TransferWithdraw for: value! !
+
+
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #Withdraw
 	instanceVariableNames: 'value'
@@ -351,6 +403,24 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #TransferWithdraw category: 'ServiciosFinancieros-Ejercicio'!
+Withdraw subclass: #TransferWithdraw
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Ejercicio'!
+
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:34:00'!
+= aTransferWithdraw
+
+	^ aTransferWithdraw value = value! !
+
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:31:13'!
+counterpart
+
+	^ TransferDeposit for: value! !
 
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
@@ -508,20 +578,34 @@ isComposedBy: anAccount
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Transfer
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value transferDeposit transferWithdraw'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:31:47'!
+!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:40:00'!
 initializeFor: aValue
 
-	value := aValue ! !
+	value := aValue.
+	transferDeposit := TransferDeposit for: aValue.
+	transferWithdraw := TransferWithdraw for: aValue.
+	! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:58:38'!
+transferDeposit
+	
+	^transferDeposit! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:58:23'!
+transferWithdraw
+	
+	^ transferWithdraw! !
 
 !Transfer methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 01:12:02'!
 value
 
 	^ value! !
+
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -534,15 +618,16 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 00:47:29'!
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 02:45:35'!
 register: aValue from: accountFrom to: accountTo
 
-	| transfer |
-	
-	transfer := self for: aValue.
-	
-	Withdraw register: aValue on: accountFrom.
-	Deposit register: aValue on: accountTo.
+	| aTransfer aTransferWithdraw aTransferDeposit |
 		
-	^transfer.
+	aTransferWithdraw :=TransferWithdraw register: aValue on: accountFrom.
+	aTransferDeposit := TransferDeposit register: aValue on: accountTo.
+	
+	"aTransfer := self for: aValue transferWithdraw: aTransferWithdraw andTransferDeposit: aTransferDeposit ."
+	aTransfer := self for: aValue.
+		
+	^aTransfer.
 	! !
