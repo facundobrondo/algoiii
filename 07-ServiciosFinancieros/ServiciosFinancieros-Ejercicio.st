@@ -110,6 +110,101 @@ test06PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 			self assert: Portfolio canNotAddAccountErrorMessage equals: anError messageText.
 			self assert: portfolioToModify hasAccounts ]! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:23:54'!
+test07
+
+	| account portfolio |
+	
+	account := ReceptiveAccount new.
+	portfolio := Portfolio with: account.
+	
+	self assert: 0*peso equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:30:54'!
+test08
+
+	| account1 portfolio account2 |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Deposit register: 100*peso on: account2.
+	portfolio := Portfolio with: account1.
+	portfolio add: account2.
+	
+	self assert: 200*peso equals: portfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:40:05'!
+test09
+
+	| account1 account2 account3 simpleportfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: account1.
+	Deposit register: 200*peso on: account2.
+	Deposit register: 300*peso on: account3.
+	
+	simpleportfolio := Portfolio with: account1.
+	simpleportfolio add: account2.
+	
+	composedPortfolio := Portfolio with: simpleportfolio.	
+	composedPortfolio add: account3.
+	
+	self assert: 600*peso equals: composedPortfolio balance.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 03:52:41'!
+test10
+
+	| account deposit portfolio withdraw |
+	
+	account := ReceptiveAccount new.
+	deposit := Deposit register: 100 * peso on: account.
+	withdraw := Withdraw register: 50 * peso on: account.
+	
+	portfolio := Portfolio with: account.	
+		
+	self assert: ( portfolio hasRegistered: deposit ).
+	self assert: ( portfolio hasRegistered: withdraw ).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 04:24:56'!
+test11
+
+	| account1 account2 account3 simpleportfolio composedPortfolio deposit1 deposit2 deposit3 |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	deposit1 := Deposit register: 100*peso on: account1.
+	deposit2 := Deposit register: 200*peso on: account2.
+	deposit3 := Deposit register: 300*peso on: account3.
+	
+	simpleportfolio := Portfolio with: account1.
+	simpleportfolio add: account2.
+	
+	composedPortfolio := Portfolio with: simpleportfolio.	
+	composedPortfolio add: account3.
+	
+	self assert: ( composedPortfolio hasRegistered: deposit1 ).
+	self assert: ( composedPortfolio hasRegistered: deposit2).
+	self assert: ( composedPortfolio hasRegistered: deposit3 ).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'ao 12/10/2020 04:27:45'!
+test12
+
+	| account deposit portfolio |
+	
+	account := ReceptiveAccount new.
+	deposit := Deposit for: 100 * peso.
+		
+	portfolio := Portfolio with: account.	
+		
+	self deny: ( portfolio hasRegistered: deposit ).
+	! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -506,6 +601,21 @@ rootParents
 signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
+
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 03:36:29'!
+balance
+	
+	^accounts sum: [ :anAccount | 		anAccount balance 	]! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 04:30:49'!
+hasRegistered: aTransaction
+
+	accounts do: [ :anAccount | (anAccount hasRegistered: aTransaction) = true ifTrue: [^true] ].
+	^false.
+	
+	
+	! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
