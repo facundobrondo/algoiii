@@ -188,38 +188,6 @@ test06ReceptiveAccountDoNotKnowNotRegisteredTransactions
 	self deny: (account hasRegistered: withdraw).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PDG 12/8/2020 17:00:22'!
-test07TransferMoneyFromAnAccountToAnotherOne
-
-	| account1 account2 amountToTransfer |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	Deposit register: 100 * peso on: account1.
-	Deposit register: 10 * peso on: account2.
-	amountToTransfer :=  73 * peso.
-	account1 transfer: amountToTransfer to: account2.
-	
-	self assert: 27 * peso equals: account1 balance.
-	self assert: 83 * peso equals: account2 balance.
-! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'PDG 12/8/2020 17:12:33'!
-test08TransferAnAmountBiggerThanBalanceFromAnAccountToAnotherOneGeneratesOverdraftOnOriginAccount
-
-	| account1 account2 amountToTransfer |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	Deposit register: 20 * peso on: account1.
-	Deposit register: 17 * peso on: account2.
-	amountToTransfer :=  71 * peso.
-	account1 transfer: amountToTransfer to: account2.
-	
-	self assert: -51 * peso equals: account1 balance.
-	self assert: 88 * peso equals: account2 balance.
-! !
-
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #AccountTransaction
@@ -263,6 +231,11 @@ initializeFor: aValue
 	value := aValue ! !
 
 
+!Deposit methodsFor: 'value' stamp: 'ao 12/9/2020 23:55:57'!
+balanceValue
+
+	^ value! !
+
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
 
@@ -292,6 +265,11 @@ initializeFor: aValue
 
 	value := aValue ! !
 
+
+!Withdraw methodsFor: 'value' stamp: 'ao 12/9/2020 23:56:20'!
+balanceValue
+
+	^ value negated ! !
 
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
@@ -434,13 +412,10 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/8/2020 16:34:36'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'ao 12/9/2020 23:56:41'!
 balance
 
-	| debits credits|
-	debits := transactions select: [:each | each isKindOf: Withdraw].
-	credits := transactions select: [:each | each isKindOf: Deposit].
-	^(credits sum: [:aTransaction | aTransaction value] ifEmpty: [0*peso]) - (debits sum: [:aTransaction | aTransaction value] ifEmpty: [0*peso]).! !
+	^transactions sum: [ :aTransaction | aTransaction balanceValue ] ifEmpty: [ 0 * peso ]! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'LL 9/20/2020 20:48:29'!
 hasRegistered: aTransaction
@@ -452,13 +427,6 @@ hasRegistered: aTransaction
 register: aTransaction
 
 	transactions add: aTransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/8/2020 17:08:22'!
-transfer: anAmount to: anAccount
-
-	Withdraw register: anAmount on: self.
-	Deposit register: anAmount on: anAccount.
 ! !
 
 
