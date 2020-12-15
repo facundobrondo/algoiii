@@ -259,7 +259,7 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 21:17:14'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:03:30'!
 test1
 
 	| account report |
@@ -268,9 +268,9 @@ test1
 	report := Reports new.
 	report summaryOfAccount: account.
 	
-	self assert: report isEmpty! !
+	self assert: report includes: 'Balance = 0 pesos'! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 21:07:12'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:10:52'!
 test2
 
 	| account report |
@@ -281,7 +281,66 @@ test2
 	report := Reports new.
 	report summaryOfAccount: account.
 	
-	self assert: report includes: 'Deposito por 100 pesos'! !
+	self assert: report includes: 'Deposito por 100 pesos'.
+	self assert: report includes: 'Balance = 100 pesos'.! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:28:43'!
+test3
+
+	| account report |
+	
+	account := ReceptiveAccount new.
+	Deposit register: 100*peso on: account.
+	Withdraw register: 30*peso on: account.
+	
+	report := Reports new.
+	report summaryOfAccount: account.
+	
+	self assert: report includes: 'Deposito por 100 pesos'.
+	self assert: report includes: 'Extraccion por 30 pesos'.
+	self assert: report includes: 'Balance = 70 pesos'.! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:38:23'!
+test4
+
+	| account1 account2 report1 report2 |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	
+	report1 := Reports new.
+	report2 := Reports new.
+	report1 summaryOfAccount: account1.
+	report2 summaryOfAccount: account2.
+	
+	self assert: report1 includes: 'Deposito por 100 pesos'.
+	self assert: report1 includes: 'Salida por transferencia de 40 pesos'.
+	self assert: report1 includes: 'Balance = 60 pesos'.
+	
+	self assert: report2 includes: 'Entrada por transferencia de 40 pesos'.
+	self assert: report2 includes: 'Balance = 40 pesos'.! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:47:52'!
+test5
+
+	| account1 account2 report1 report2 |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	
+	report1 := Reports new.
+	report2 := Reports new.
+	report1 netTransferOfAccount: account1.
+	report2 netTransferOfAccount: account2.
+	
+	self assert: report1 equals: '-40 pesos'.
+	
+	self assert: report2 equals: '40 pesos'.
+! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Solucion-Portfolio'!
@@ -557,6 +616,12 @@ balance
 		inject: 0 * peso
 		into: [ :currentBalance :transaction | transaction affectBalance: currentBalance ]! !
 
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/14/2020 20:14:13'!
+getTransactions
+
+	^transactions
+! !
+
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'LL 9/20/2020 20:53:32'!
 hasRegistered: aTransaction
 
@@ -568,6 +633,14 @@ register: aTransaction
 
 	transactions add: aTransaction 
 ! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/14/2020 21:11:43'!
+transfersBalance
+
+	^transactions
+		inject: 0 * peso
+		into: [ :currentBalance :transaction | (transaction isKindOf: TransferDepositLeg) ifTrue: [transaction affectBalance: currentBalance].
+			(transaction isKindOf: TransferWithdrawLeg ) ifTrue: [transaction affectBalance: currentBalance]. ].! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -768,6 +841,10 @@ Object subclass: #Reports
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
+!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:00:02'!
+includes: aRecord
+	^report includes: aRecord! !
+
 !Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 21:11:25'!
 initialize
 
@@ -780,10 +857,22 @@ isEmpty
 
 	^ report isEmpty ! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 21:20:20'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:51:30'!
+netTransferOfAccount: aReceptiveAccount 
+	
+	^aReceptiveAccount transfersBalance.! !
+
+!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:40:22'!
 summaryOfAccount: aReceptiveAccount 
 	
-	^ report! !
+	| transactions |
+	transactions := aReceptiveAccount getTransactions.
+	transactions do: [:aTransaction | (aTransaction isKindOf: Deposit) ifTrue: [report add: ('Deposito por ' append: aTransaction value asString)].
+		(aTransaction isKindOf: Withdraw) ifTrue: [report add: ('Extraccion por ' append: aTransaction value asString)].
+		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [report add: ('Entrada por transferencia de ' append: aTransaction value asString)].
+		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [report add: ('Salida por transferencia de ' append: aTransaction value asString)]. ].
+	report add: aReceptiveAccount.
+	report add: ('Balance = ' append: aReceptiveAccount balance asString).! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion-Portfolio'!
