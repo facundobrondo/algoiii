@@ -270,6 +270,86 @@ test1
 	
 	self assert: report includes: 'Balance = 0 pesos'! !
 
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:25:59'!
+test10
+
+	| account1 account2 report simplePortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: 0*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:28:17'!
+test11
+
+	| account1 account2 account3 report simplePortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account3.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: -40*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:30:40'!
+test12
+
+	| account1 account2 account3 report simplePortfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	Transfer amount: 20*peso from: account1 to: account3.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	composedPortfolio := Portfolio with: simplePortfolio.
+	composedPortfolio add: account3.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: 0*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:31:22'!
+test13
+
+	| account1 account2 account3 account4 report simplePortfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	account4 := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	Transfer amount: 20*peso from: account1 to: account4.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	composedPortfolio := Portfolio with: simplePortfolio.
+	composedPortfolio add: account3.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: -20*peso.
+! !
+
 !ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:10:52'!
 test2
 
@@ -322,7 +402,7 @@ test4
 	self assert: report2 includes: 'Entrada por transferencia de 40 pesos'.
 	self assert: report2 includes: 'Balance = 40 pesos'.! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:47:52'!
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:12:45'!
 test5
 
 	| account1 account2 report1 report2 |
@@ -334,12 +414,90 @@ test5
 	
 	report1 := Reports new.
 	report2 := Reports new.
-	report1 netTransferOfAccount: account1.
-	report2 netTransferOfAccount: account2.
 	
-	self assert: report1 equals: '-40 pesos'.
+	self assert: ( report1 netTransferOfAccount: account1 ) equals: -40*peso.
 	
-	self assert: report2 equals: '40 pesos'.
+	self assert: ( report2 netTransferOfAccount: account2 ) equals: 40*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 14:37:37'!
+test6
+
+	| account report simplePortfolio |
+	
+	account := ReceptiveAccount new.
+	simplePortfolio := Portfolio with: account.
+	report := Reports new.
+	
+	report summaryOfPortfolio: simplePortfolio.
+	
+	self assert: report includes: 'Balance = 0 pesos'! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 14:48:13'!
+test7
+
+	| account report simplePortfolio |
+	
+	account := ReceptiveAccount new.
+	Deposit register: 50*peso on: account.
+	
+	simplePortfolio := Portfolio with: account.
+	
+	report := Reports new.
+	
+	report summaryOfPortfolio: simplePortfolio.
+	
+	self assert: report includes: 'Deposito por 50 pesos'.
+	self assert: report includes: 'Balance = 50 pesos'! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:11:35'!
+test8
+
+	| account1 account2 account3 report simplePortfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	Deposit register: 50*peso on: account1.
+	Transfer amount: 20*peso from: account1 to: account2.
+	Deposit register: 100*peso on: account3.
+	Transfer amount: 10*peso from: account2 to: account3.
+		
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	composedPortfolio := Portfolio with: simplePortfolio.
+	composedPortfolio add:account3.
+		
+	report := Reports new.
+	
+	report summaryOfPortfolio: composedPortfolio.
+	
+	self assert: report includes: 'Deposito por 50 pesos'.
+	self assert: report includes: 'Salida por transferencia de 20 pesos'.
+	self assert: report includes: 'Balance = 30 pesos'.
+	self assert: report includes: 'Entrada por transferencia de 20 pesos'.
+	self assert: report includes: 'Salida por transferencia de 10 pesos'.
+	self assert: report includes: 'Balance = 10 pesos'.
+	self assert: report includes: 'Deposito por 100 pesos'.
+	self assert: report includes: 'Entrada por transferencia de 10 pesos'.
+	self assert: report includes: 'Balance = 110 pesos'.
+	! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:26:24'!
+test9
+
+	| account1 account2 report simplePortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: 0*peso.
 ! !
 
 
@@ -525,6 +683,11 @@ hasAccounts
 	
 	^accounts isEmpty ! !
 
+!Portfolio methodsFor: 'accounts management' stamp: 'ao 12/17/2020 15:24:38'!
+transfersBalance
+
+	^accounts sum: [ :anAccount | anAccount transfersBalance ] ifEmpty: [ 0*peso ]! !
+
 
 !Portfolio methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:17:31'!
 addRootParentsTo: rootParents
@@ -569,6 +732,12 @@ signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
 
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 14:44:05'!
+getAccounts
+
+	^ accounts ! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Solucion-Portfolio'!
@@ -609,7 +778,7 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'LL 9/21/2020 01:35:28'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'ao 12/17/2020 13:20:09'!
 balance
 
 	^transactions 
@@ -634,13 +803,16 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'PDG 12/14/2020 21:11:43'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'ao 12/17/2020 14:11:38'!
 transfersBalance
-
-	^transactions
-		inject: 0 * peso
-		into: [ :currentBalance :transaction | (transaction isKindOf: TransferDepositLeg) ifTrue: [transaction affectBalance: currentBalance].
-			(transaction isKindOf: TransferWithdrawLeg ) ifTrue: [transaction affectBalance: currentBalance]. ].! !
+	
+	| currentBalance |
+	currentBalance := 0*peso.
+	transactions do:[ :transaction | (transaction isKindOf: TransferDepositLeg) ifTrue: [ currentBalance := currentBalance + transaction balanceValue ].
+			                             (transaction isKindOf: TransferWithdrawLeg ) ifTrue: [ currentBalance := currentBalance + transaction balanceValue ]. 
+			                             (transaction isKindOf: Deposit ) ifTrue:[ currentBalance := currentBalance + 0*peso ].
+			                             (transaction isKindOf: Withdraw ) ifTrue:[ currentBalance := currentBalance + 0*peso] ].
+	^currentBalance ! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -660,6 +832,11 @@ Object subclass: #AccountTransaction
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
+
+!AccountTransaction methodsFor: 'value' stamp: 'ao 12/17/2020 14:05:41'!
+balanceValue 
+
+	self subclassResponsibility ! !
 
 !AccountTransaction methodsFor: 'value' stamp: 'HernanWilkinson 9/12/2011 12:25'!
 value 
@@ -701,6 +878,11 @@ initializeFor: aValue
 
 	value := aValue ! !
 
+
+!Deposit methodsFor: 'value' stamp: 'ao 12/17/2020 14:05:52'!
+balanceValue
+
+	^ value! !
 
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
@@ -767,10 +949,15 @@ TransferLeg subclass: #TransferDepositLeg
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
-!TransferDepositLeg methodsFor: 'balance' stamp: 'LL 9/20/2020 22:27:49'!
+!TransferDepositLeg methodsFor: 'balance' stamp: 'ao 12/17/2020 14:07:01'!
 affectBalance: aBalance
 
 	^aBalance + self value! !
+
+!TransferDepositLeg methodsFor: 'balance' stamp: 'ao 12/17/2020 14:07:44'!
+balanceValue
+
+	^ transfer value! !
 
 
 !TransferDepositLeg methodsFor: 'accessing' stamp: 'LL 9/20/2020 22:26:10'!
@@ -791,6 +978,11 @@ affectBalance: aBalance
 
 	^aBalance - self value! !
 
+!TransferWithdrawLeg methodsFor: 'balance' stamp: 'ao 12/17/2020 14:07:53'!
+balanceValue
+
+	^ transfer value negated! !
+
 
 !TransferWithdrawLeg methodsFor: 'accessing' stamp: 'LL 9/20/2020 22:25:47'!
 depositLeg
@@ -810,6 +1002,11 @@ initializeFor: aValue
 
 	value := aValue ! !
 
+
+!Withdraw methodsFor: 'value' stamp: 'ao 12/17/2020 14:06:19'!
+balanceValue
+
+	^ value negated ! !
 
 !Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
 value
@@ -857,12 +1054,19 @@ isEmpty
 
 	^ report isEmpty ! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:51:30'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 13:16:50'!
 netTransferOfAccount: aReceptiveAccount 
 	
-	^aReceptiveAccount transfersBalance.! !
+	^aReceptiveAccount transfersBalance.
+	! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:40:22'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:17:38'!
+netTransferOfPortfolio: aPortfolio
+	
+	^aPortfolio transfersBalance.
+	! !
+
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:07:02'!
 summaryOfAccount: aReceptiveAccount 
 	
 	| transactions |
@@ -871,8 +1075,17 @@ summaryOfAccount: aReceptiveAccount
 		(aTransaction isKindOf: Withdraw) ifTrue: [report add: ('Extraccion por ' append: aTransaction value asString)].
 		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [report add: ('Entrada por transferencia de ' append: aTransaction value asString)].
 		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [report add: ('Salida por transferencia de ' append: aTransaction value asString)]. ].
-	report add: aReceptiveAccount.
+	"report add: aReceptiveAccount."
 	report add: ('Balance = ' append: aReceptiveAccount balance asString).! !
+
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:09:13'!
+summaryOfPortfolio: aPortfolio
+
+	| accounts |
+	accounts := aPortfolio getAccounts.
+	
+	accounts do: [ :anAccount | ( anAccount isKindOf: ReceptiveAccount ) ifTrue: [self summaryOfAccount: anAccount ].
+		( anAccount isKindOf: Portfolio ) ifTrue: [self summaryOfPortfolio: anAccount ] ]! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Solucion-Portfolio'!
