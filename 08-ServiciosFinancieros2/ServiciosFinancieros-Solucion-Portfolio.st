@@ -803,16 +803,11 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'ao 12/17/2020 14:11:38'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'ao 12/17/2020 16:47:47'!
 transfersBalance
 	
-	| currentBalance |
-	currentBalance := 0*peso.
-	transactions do:[ :transaction | (transaction isKindOf: TransferDepositLeg) ifTrue: [ currentBalance := currentBalance + transaction balanceValue ].
-			                             (transaction isKindOf: TransferWithdrawLeg ) ifTrue: [ currentBalance := currentBalance + transaction balanceValue ]. 
-			                             (transaction isKindOf: Deposit ) ifTrue:[ currentBalance := currentBalance + 0*peso ].
-			                             (transaction isKindOf: Withdraw ) ifTrue:[ currentBalance := currentBalance + 0*peso] ].
-	^currentBalance ! !
+	^transactions inject: 0*peso into: [ :currentBalance :aTransaction | aTransaction affectTransferBalance: currentBalance ]
+! !
 
 
 !ReceptiveAccount methodsFor: 'composition - private' stamp: 'HAW 5/25/2019 12:03:32'!
@@ -846,6 +841,12 @@ value
 
 !AccountTransaction methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:39'!
 affectBalance: aBalance
+
+	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:37:44'!
+transactionDetail
 
 	self subclassResponsibility ! !
 
@@ -894,6 +895,17 @@ value
 affectBalance: aBalance
 
 	^aBalance + value ! !
+
+!Deposit methodsFor: 'balance' stamp: 'ao 12/17/2020 16:45:20'!
+affectTransferBalance: aBalance
+
+	^aBalance! !
+
+
+!Deposit methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:37:34'!
+transactionDetail
+
+	 ^('Deposito por ' append: self value asString)! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -965,6 +977,17 @@ withdrawLeg
 
 	^transfer withdrawLeg! !
 
+
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:46:01'!
+affectTransferBalance: aBalance
+
+	^aBalance + self value! !
+
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:37:07'!
+transactionDetail
+
+	^('Entrada por transferencia de ' append: self value asString) ! !
+
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Solucion-Portfolio'!
 TransferLeg subclass: #TransferWithdrawLeg
@@ -988,6 +1011,17 @@ balanceValue
 depositLeg
 
 	^transfer depositLeg! !
+
+
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:46:11'!
+affectTransferBalance: aBalance
+
+	^aBalance - self value! !
+
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:36:43'!
+transactionDetail
+	
+	^ ('Salida por transferencia de ' append: self value asString)! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Solucion-Portfolio'!
@@ -1019,6 +1053,17 @@ affectBalance: aBalance
 
 	^aBalance - value! !
 
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:45:37'!
+affectTransferBalance: aBalance
+
+	^aBalance! !
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:37:22'!
+transactionDetail
+
+	 ^ ('Extraccion por ' append: self value asString)! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Withdraw class' category: 'ServiciosFinancieros-Solucion-Portfolio'!
@@ -1038,8 +1083,9 @@ Object subclass: #Reports
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:00:02'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:48:13'!
 includes: aRecord
+
 	^report includes: aRecord! !
 
 !Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/10/2020 21:11:25'!
@@ -1066,19 +1112,16 @@ netTransferOfPortfolio: aPortfolio
 	^aPortfolio transfersBalance.
 	! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:07:02'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:39:57'!
 summaryOfAccount: aReceptiveAccount 
 	
 	| transactions |
 	transactions := aReceptiveAccount getTransactions.
-	transactions do: [:aTransaction | (aTransaction isKindOf: Deposit) ifTrue: [report add: ('Deposito por ' append: aTransaction value asString)].
-		(aTransaction isKindOf: Withdraw) ifTrue: [report add: ('Extraccion por ' append: aTransaction value asString)].
-		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [report add: ('Entrada por transferencia de ' append: aTransaction value asString)].
-		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [report add: ('Salida por transferencia de ' append: aTransaction value asString)]. ].
-	"report add: aReceptiveAccount."
+	transactions do: [:aTransaction | report add: (aTransaction transactionDetail) ].
+	
 	report add: ('Balance = ' append: aReceptiveAccount balance asString).! !
 
-!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:09:13'!
+!Reports methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 16:53:22'!
 summaryOfPortfolio: aPortfolio
 
 	| accounts |
