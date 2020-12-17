@@ -259,8 +259,8 @@ TestCase subclass: #ReportTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Solucion-Portfolio'!
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:03:30'!
-test1
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:42:05'!
+test01AccountSummaryForNewAccountShowsZeroBalance
 
 	| account report |
 	
@@ -270,88 +270,8 @@ test1
 	
 	self assert: report includes: 'Balance = 0 pesos'! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:25:59'!
-test10
-
-	| account1 account2 report simplePortfolio |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	Deposit register: 100*peso on: account1.
-	Transfer amount: 40*peso from: account1 to: account2.
-	simplePortfolio := Portfolio with: account1.
-	simplePortfolio add: account2.
-	
-	report := Reports new.
-	
-	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: 0*peso.
-! !
-
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:28:17'!
-test11
-
-	| account1 account2 account3 report simplePortfolio |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	account3 := ReceptiveAccount new.
-	Deposit register: 100*peso on: account1.
-	Transfer amount: 40*peso from: account1 to: account3.
-	simplePortfolio := Portfolio with: account1.
-	simplePortfolio add: account2.
-	
-	report := Reports new.
-	
-	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: -40*peso.
-! !
-
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:30:40'!
-test12
-
-	| account1 account2 account3 report simplePortfolio composedPortfolio |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	account3 := ReceptiveAccount new.
-	
-	Deposit register: 100*peso on: account1.
-	Transfer amount: 40*peso from: account1 to: account2.
-	Transfer amount: 20*peso from: account1 to: account3.
-	simplePortfolio := Portfolio with: account1.
-	simplePortfolio add: account2.
-	composedPortfolio := Portfolio with: simplePortfolio.
-	composedPortfolio add: account3.
-	
-	report := Reports new.
-	
-	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: 0*peso.
-! !
-
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:31:22'!
-test13
-
-	| account1 account2 account3 account4 report simplePortfolio composedPortfolio |
-	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
-	account3 := ReceptiveAccount new.
-	account4 := ReceptiveAccount new.
-	
-	Deposit register: 100*peso on: account1.
-	Transfer amount: 40*peso from: account1 to: account2.
-	Transfer amount: 20*peso from: account1 to: account4.
-	simplePortfolio := Portfolio with: account1.
-	simplePortfolio add: account2.
-	composedPortfolio := Portfolio with: simplePortfolio.
-	composedPortfolio add: account3.
-	
-	report := Reports new.
-	
-	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: -20*peso.
-! !
-
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:10:52'!
-test2
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:42:22'!
+test02AccountSummaryForAccountWithOneMoveShowsThatTransactionAndTheBalance
 
 	| account report |
 	
@@ -364,8 +284,8 @@ test2
 	self assert: report includes: 'Deposito por 100 pesos'.
 	self assert: report includes: 'Balance = 100 pesos'.! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:28:43'!
-test3
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:42:36'!
+test03AccountSummaryForAccountWithDepositAndWithdrawShowsThoseTransactionsAndBalance
 
 	| account report |
 	
@@ -380,8 +300,8 @@ test3
 	self assert: report includes: 'Extraccion por 30 pesos'.
 	self assert: report includes: 'Balance = 70 pesos'.! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/14/2020 20:38:23'!
-test4
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:42:47'!
+test04AccountSummaryForTwoAccountsWithDifferentMovesAndTransferShowsBothTransferLegsAndBalances
 
 	| account1 account2 report1 report2 |
 	
@@ -402,8 +322,8 @@ test4
 	self assert: report2 includes: 'Entrada por transferencia de 40 pesos'.
 	self assert: report2 includes: 'Balance = 40 pesos'.! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:12:45'!
-test5
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:46:11'!
+test05TransfersNetForATransferBetweenAccountsShowsNetOppositeValues
 
 	| account1 account2 report1 report2 |
 	
@@ -420,8 +340,8 @@ test5
 	self assert: ( report2 netTransferOfAccount: account2 ) equals: 40*peso.
 ! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 14:37:37'!
-test6
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:46:45'!
+test06PortfolioSummaryForSimplePortfolioWithNewAccountShowsZeroBalance
 
 	| account report simplePortfolio |
 	
@@ -433,8 +353,8 @@ test6
 	
 	self assert: report includes: 'Balance = 0 pesos'! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 14:48:13'!
-test7
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:44:30'!
+test07PortolioSummaryForSimplePortfolioWithOneAccountWithOneTransactionShowsThatMoveAndTheBalance
 
 	| account report simplePortfolio |
 	
@@ -450,8 +370,8 @@ test7
 	self assert: report includes: 'Deposito por 50 pesos'.
 	self assert: report includes: 'Balance = 50 pesos'! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:11:35'!
-test8
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:47:51'!
+test08PortfolioSummaryForComposedPortfolioShowsAllAccountsTransactionsAndBalances
 
 	| account1 account2 account3 report simplePortfolio composedPortfolio |
 	
@@ -485,8 +405,8 @@ test8
 	self assert: report includes: 'Balance = 110 pesos'.
 	! !
 
-!ReportTest methodsFor: 'as yet unclassified' stamp: 'ao 12/17/2020 15:26:24'!
-test9
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:49:33'!
+test09PortfolioTransfersNetForSimplePortfolioWithoutTransactionsYieldsZero
 
 	| account1 account2 report simplePortfolio |
 	
@@ -498,6 +418,86 @@ test9
 	report := Reports new.
 	
 	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: 0*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:50:45'!
+test10PortfolioTransfersNetForSimplePortfolioWithTransfersAmongInternalAccountsYieldsZero
+
+	| account1 account2 report simplePortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: 0*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:54:34'!
+test11PortfolioTransfersNetForSimplePortfolioWithTransferBetweenAnInternalAndExternalAccountsIsDifferentFromZero
+
+	| account1 account2 account3 report simplePortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account3.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: simplePortfolio ) equals: -40*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:56:19'!
+test12PortfolioTransfersNetForComposedPortfolioWithTransfersAmongInternalAccountsYieldsZero
+
+	| account1 account2 account3 report simplePortfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	Transfer amount: 20*peso from: account1 to: account3.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	composedPortfolio := Portfolio with: simplePortfolio.
+	composedPortfolio add: account3.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: 0*peso.
+! !
+
+!ReportTest methodsFor: 'as yet unclassified' stamp: 'PDG 12/17/2020 17:57:21'!
+test13PortfolioTransferNetForComposedPortfolioWithOneTransferToAnExternalAccountIsDifferentFromZero
+
+	| account1 account2 account3 account4 report simplePortfolio composedPortfolio |
+	
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	account4 := ReceptiveAccount new.
+	
+	Deposit register: 100*peso on: account1.
+	Transfer amount: 40*peso from: account1 to: account2.
+	Transfer amount: 20*peso from: account1 to: account4.
+	simplePortfolio := Portfolio with: account1.
+	simplePortfolio add: account2.
+	composedPortfolio := Portfolio with: simplePortfolio.
+	composedPortfolio add: account3.
+	
+	report := Reports new.
+	
+	self assert: ( report netTransferOfPortfolio: composedPortfolio ) equals: -20*peso.
 ! !
 
 
