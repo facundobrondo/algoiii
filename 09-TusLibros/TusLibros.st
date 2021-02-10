@@ -5,21 +5,22 @@ TestCase subclass: #CartTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CartTest methodsFor: 'as yet unclassified' stamp: 'ao 2/8/2021 21:23:21'!
+!CartTest methodsFor: 'as yet unclassified' stamp: 'ao 2/10/2021 01:29:53'!
 test01ANewCartIsEmpty
 
 	| aCart |
-	aCart := Cart createWithClientId: '01' andPassword: '1234'.
+	aCart := OrderedCollection new.
 	
 	self assert: aCart isEmpty! !
 
-!CartTest methodsFor: 'as yet unclassified' stamp: 'ao 2/8/2021 21:42:39'!
-test02AnItemCanBeAddedToACart
+!CartTest methodsFor: 'as yet unclassified' stamp: 'ao 2/10/2021 01:55:58'!
+test02ABookCanBeAddedToACart
 
 	| aCart |
-	aCart := Cart createWithClientId: '01' andPassword: '1234'.
-	aCart addItem: '0123456789'.
+	aCart := OrderedCollection new.
 	
+	aCart add: '1234'.
+		
 	self deny: aCart isEmpty.! !
 
 
