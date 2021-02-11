@@ -1,6 +1,6 @@
 !classDefinition: #CartTest category: 'TusLibros'!
 TestCase subclass: #CartTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'book1 book2 book3 catalog'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -13,61 +13,55 @@ test01ANewCartIsEmpty
 	
 	self assert: aCart isEmpty! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/10/2021 22:09:41'!
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:51:50'!
 test02ABookInACatalogCanBeAddedToACart
 
-	| aCart Catalog book1 book2 book3 |
+	| aCart |
 	aCart := Cart new.
-	Catalog := OrderedCollection new.
-	book1 := '0000000000001'.
-	book2 := '0000000000002'	.
-	book3 := '0000000000003'.
-	
-	Catalog add: book1 ; add: book2; add: book3.
-	
-	aCart addBook: book1 inCatalog: Catalog.
+		
+	aCart addBook: book1 inCatalog: catalog.
 		
 	self deny: aCart isEmpty.
 	self assert: aCart includes: book1.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/10/2021 22:21:41'!
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:58:06'!
 test03ABookNotInACatalogCannotBeAddedToACart
 
-	| aCart Catalog book1 book2 book3 book4 |
+	| aCart book4 |
 	aCart := Cart new.
-	Catalog := OrderedCollection new.
-	book1 := '0000000000001'.
-	book2 := '0000000000002'	.
-	book3 := '0000000000003'.
-	book4 := '0000000000004'.
 	
-	Catalog add: book1 ; add: book2; add: book3.
+	book4 := '0000000000004'.
 		
-	self should: [ aCart addBook: book4 inCatalog: Catalog ]
+	self should: [ aCart addBook: book4 inCatalog: catalog ]
 	raise: Error
 	withExceptionDo: [ :anError | self assert: anError messageText equals: Cart cannotAddABookNotInCatalog ]
-	! !
+! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/10/2021 23:09:47'!
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:53:12'!
 test04ACartContentsCanBeListed
 
-	| aCart catalog listOfAddedBooks book1 book2 book3|
+	| aCart listOfAddedBooks|
 	aCart := Cart new.
-	catalog := OrderedCollection new.
-	book1 := '0000000000001'.
-	book2 := '0000000000002'	.
-	book3 := '0000000000003'.
 	
-	catalog add: book1 ; add: book2; add: book3.
 	aCart addBook: book1 inCatalog: catalog.
 	aCart addBook: book2 inCatalog: catalog.
 	
 	listOfAddedBooks := OrderedCollection with: book1 with: book2.
 	
 	
-	self assert: aCart showContents equals: listOfAddedBooks
+	self assert: aCart showContents equals: listOfAddedBooks! !
+
+
+!CartTest methodsFor: 'setup' stamp: 'ao 2/11/2021 17:58:40'!
+setUp
+
+	book1 := '0000000000001'.
+	book2 := '0000000000002'.
+	book3 := '0000000000003'.
 	
-	! !
+	catalog := OrderedCollection with: book1 with: book2 with: book3
+
+! !
 
 
 !classDefinition: #Cart category: 'TusLibros'!
