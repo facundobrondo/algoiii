@@ -5,49 +5,51 @@ TestCase subclass: #CartTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/10/2021 21:26:33'!
+!CartTest methodsFor: 'tests' stamp: 'FB 2/14/2021 03:10:23'!
 test01ANewCartIsEmpty
 
 	| aCart |
+	
 	aCart := Cart new.
 	
 	self assert: aCart isEmpty! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:16:42'!
+!CartTest methodsFor: 'tests' stamp: 'FB 2/14/2021 03:11:45'!
 test02ABookInACatalogCanBeAddedToACart
 
 	| aCart |
 	aCart := Cart new.
 	
 	aCart addBook: book1 inCatalog: catalog.
-	aCart addBook: book1 inCatalog: catalog.
 		
 	self deny: aCart isEmpty.
 	self assert: aCart includes: book1.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 19:04:29'!
+!CartTest methodsFor: 'tests' stamp: 'FB 2/14/2021 03:22:28'!
 test03MoreThanOneCopyOfTheSameBookInCatalogCanBeAddedToACart
 
 	| aCart |
 	aCart := Cart new.
 	
 	aCart add: 3 book: book1 inCatalog: catalog.
-	aCart add: 2 book: book2 inCatalog: catalog.
 		
-	self assert: ( aCart countOf: book1 ) equals: 3.
-	self assert: ( aCart countOf: book2 ) equals: 2! !
+	self assert: ( aCart countOf: book1 ) equals: 3.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:17:20'!
+!CartTest methodsFor: 'tests' stamp: 'FB 2/14/2021 03:18:14'!
 test04ABookNotInACatalogCannotBeAddedToACart
 
 	| aCart book4 |
 	aCart := Cart new.
 	
 	book4 := '0000000000004'.
-		
-	self should: [ aCart addBook: book4 inCatalog: catalog ]
+	
+	self assert: aCart 
+	isEmptyAfter: [ aCart addBook: book4 inCatalog: catalog ]
+	raisesErrorWithMessage: 		Cart cannotAddABookNotInCatalog 
+	
+	"self should: [ aCart addBook: book4 inCatalog: catalog ]
 	raise: Error
-	withExceptionDo: [ :anError | self assert: anError messageText equals: Cart cannotAddABookNotInCatalog ]
+	withExceptionDo: [ :anError | self assert: anError messageText equals: Cart cannotAddABookNotInCatalog ]"
 ! !
 
 !CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:17:29'!
@@ -76,6 +78,15 @@ setUp
 
 ! !
 
+
+!CartTest methodsFor: 'private' stamp: 'FB 2/14/2021 03:14:58'!
+assert: cart isEmptyAfter: blockExpectedToFail raisesErrorWithMessage: errorMessage
+	
+	self should: blockExpectedToFail raise: Error withExceptionDo: [ :anException |
+		self assert: anException messageText equals: errorMessage.
+		self assert: cart isEmpty.
+	]! !
+
 
 !classDefinition: #Cart category: 'TusLibros'!
 Object subclass: #Cart
@@ -95,20 +106,28 @@ isEmpty
 	^ contents isEmpty.! !
 
 
-!Cart methodsFor: 'action' stamp: 'ao 2/11/2021 18:35:36'!
+!Cart methodsFor: 'action' stamp: 'FB 2/14/2021 03:33:26'!
 add: quantity book: aBook inCatalog: aCatalog
-	
-	quantity timesRepeat: [ self addBook: aBook inCatalog: aCatalog ]! !
 
-!Cart methodsFor: 'action' stamp: 'ao 2/10/2021 22:25:40'!
+	self assertValideNumberOfCopies: quantity.
+	(aCatalog includes: aBook ) ifTrue: [ ^ contents add: aBook withOccurrences: quantity ].
+	self error: Cart cannotAddABookNotInCatalog	
+	
+	"quantity timesRepeat: [ self addBook: aBook inCatalog: aCatalog ]"! !
+
+!Cart methodsFor: 'action' stamp: 'FB 2/14/2021 03:32:27'!
 addBook: aBook inCatalog: aCatalog
 
-	(aCatalog includes: aBook ) ifTrue: [ ^ contents add: aBook ].
-	self error: Cart cannotAddABookNotInCatalog
+	self add: 1 book: aBook inCatalog: aCatalog 
 	
 	
 	
 	! !
+
+!Cart methodsFor: 'action' stamp: 'FB 2/14/2021 03:30:38'!
+assertValideNumberOfCopies: quantity
+
+	^ quantity strictlyPositive ifFalse: [ self error: self class invalidNumberOfCopiesErrorMessage ]! !
 
 
 !Cart methodsFor: 'accessing' stamp: 'ao 2/11/2021 19:03:39'!
@@ -137,3 +156,8 @@ Cart class
 cannotAddABookNotInCatalog
 
 	^ 'Cannot add a Book that is not in catalog'! !
+
+!Cart class methodsFor: 'as yet unclassified' stamp: 'FB 2/14/2021 03:31:04'!
+invalidNumberOfCopiesErrorMessage
+
+	^'Cannot add zero books'! !
