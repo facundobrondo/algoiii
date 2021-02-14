@@ -13,19 +13,32 @@ test01ANewCartIsEmpty
 	
 	self assert: aCart isEmpty! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:51:50'!
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:16:42'!
 test02ABookInACatalogCanBeAddedToACart
 
 	| aCart |
 	aCart := Cart new.
-		
+	
+	aCart addBook: book1 inCatalog: catalog.
 	aCart addBook: book1 inCatalog: catalog.
 		
 	self deny: aCart isEmpty.
 	self assert: aCart includes: book1.! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:58:06'!
-test03ABookNotInACatalogCannotBeAddedToACart
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 19:04:29'!
+test03MoreThanOneCopyOfTheSameBookInCatalogCanBeAddedToACart
+
+	| aCart |
+	aCart := Cart new.
+	
+	aCart add: 3 book: book1 inCatalog: catalog.
+	aCart add: 2 book: book2 inCatalog: catalog.
+		
+	self assert: ( aCart countOf: book1 ) equals: 3.
+	self assert: ( aCart countOf: book2 ) equals: 2! !
+
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:17:20'!
+test04ABookNotInACatalogCannotBeAddedToACart
 
 	| aCart book4 |
 	aCart := Cart new.
@@ -37,8 +50,8 @@ test03ABookNotInACatalogCannotBeAddedToACart
 	withExceptionDo: [ :anError | self assert: anError messageText equals: Cart cannotAddABookNotInCatalog ]
 ! !
 
-!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 17:53:12'!
-test04ACartContentsCanBeListed
+!CartTest methodsFor: 'tests' stamp: 'ao 2/11/2021 18:17:29'!
+test05ACartContentsCanBeListed
 
 	| aCart listOfAddedBooks|
 	aCart := Cart new.
@@ -82,6 +95,11 @@ isEmpty
 	^ contents isEmpty.! !
 
 
+!Cart methodsFor: 'action' stamp: 'ao 2/11/2021 18:35:36'!
+add: quantity book: aBook inCatalog: aCatalog
+	
+	quantity timesRepeat: [ self addBook: aBook inCatalog: aCatalog ]! !
+
 !Cart methodsFor: 'action' stamp: 'ao 2/10/2021 22:25:40'!
 addBook: aBook inCatalog: aCatalog
 
@@ -92,6 +110,12 @@ addBook: aBook inCatalog: aCatalog
 	
 	! !
 
+
+!Cart methodsFor: 'accessing' stamp: 'ao 2/11/2021 19:03:39'!
+countOf: aBook
+	
+	^ ( contents select: [ :book | book = aBook ] ) size
+! !
 
 !Cart methodsFor: 'accessing' stamp: 'ao 2/10/2021 22:10:57'!
 includes: aBook
