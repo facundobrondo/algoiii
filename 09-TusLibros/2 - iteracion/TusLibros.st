@@ -102,14 +102,27 @@ TestCase subclass: #CashierTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CashierTest methodsFor: 'test' stamp: 'ao 2/16/2021 04:25:52'!
-test0
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 00:41:13'!
+test01CannotCheckoutOnEmptyCart
 
-	| aCashier aCart |
+	| aCashier aCart aCreditCard |
 	aCart := self createCart.
 	aCashier := Cashier new.
+	aCreditCard := self createValidCreditCard.
 
-	self should: [ aCashier checkout: aCart ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: aCashier class CannotCheckouOnEmptyCartErrorMessage ]! !
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: aCashier class CannotCheckoutOnEmptyCartErrorMessage ]! !
+
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 02:14:18'!
+test02CannotCheckoutWithInvalidCreditCardNumber
+
+	| aCashier aCart aCreditCard |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createCreditCardWithInvalidNumber.
+	
+	aCart add: self bookFromTheEditorial.
+	
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithInvalidCreditCardNumber ]! !
 
 
 !CashierTest methodsFor: 'private' stamp: 'ao 2/16/2021 04:27:46'!
@@ -123,6 +136,20 @@ createCart
 	| aCatalog |
 	aCatalog := Set with: self bookFromTheEditorial.
 	^Cart withCatalog: aCatalog.! !
+
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 00:41:51'!
+createCreditCardWithInvalidNumber
+
+	| aCreditCard |
+	aCreditCard := 000100020003000.
+	^ aCreditCard ! !
+
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 00:41:46'!
+createValidCreditCard
+
+	| aCreditCard |
+	aCreditCard := 0001000200030004.
+	^ aCreditCard ! !
 
 
 !classDefinition: #Cart category: 'TusLibros'!
@@ -214,10 +241,21 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'as yet unclassified' stamp: 'ao 2/16/2021 04:31:40'!
-checkout: aCart
+!Cashier methodsFor: 'action' stamp: 'ao 2/18/2021 02:13:26'!
+checkout: aCart withCreditCard: creditCard
 
-	^ self error: self class CannotCheckouOnEmptyCartErrorMessage ! !
+	| merchantProcessor  |
+	self validateCart: aCart.
+	merchantProcessor := MerchantProcessor new.
+	
+	merchantProcessor validateCard: creditCard.
+
+	! !
+
+!Cashier methodsFor: 'action' stamp: 'ao 2/18/2021 00:47:41'!
+validateCart: aCart 
+	
+	( aCart isEmpty ) ifTrue: [ ^ self error: self class CannotCheckoutOnEmptyCartErrorMessage ]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -225,7 +263,31 @@ checkout: aCart
 Cashier class
 	instanceVariableNames: ''!
 
-!Cashier class methodsFor: 'error handling' stamp: 'ao 2/16/2021 04:29:41'!
-CannotCheckouOnEmptyCartErrorMessage
+!Cashier class methodsFor: 'error handling' stamp: 'ao 2/16/2021 12:37:49'!
+CannotCheckoutOnEmptyCartErrorMessage
 	
 	^ 'Cannot checkout on empty cart'! !
+
+
+!classDefinition: #MerchantProcessor category: 'TusLibros'!
+Object subclass: #MerchantProcessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!MerchantProcessor methodsFor: 'action' stamp: 'ao 2/18/2021 02:08:43'!
+validateCard: aCreditCard 
+	
+	( aCreditCard decimalDigitLength = 16 ) ifFalse: [ ^ self error: self class CannotCheckoutWithInvalidCreditCardNumber ]! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MerchantProcessor class' category: 'TusLibros'!
+MerchantProcessor class
+	instanceVariableNames: ''!
+
+!MerchantProcessor class methodsFor: 'error handling' stamp: 'ao 2/18/2021 02:12:12'!
+CannotCheckoutWithInvalidCreditCardNumber
+	
+	^ 'Cannot checkout with invalid credit card number'! !
