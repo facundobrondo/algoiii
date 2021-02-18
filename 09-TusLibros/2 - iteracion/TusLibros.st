@@ -163,20 +163,63 @@ test05CannotCheckoutWithEmptyNameOnCreditCard
 	
 	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithInvalidNameOnCreditCard ]! !
 
-!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 13:24:30'!
+!CashierTest methodsFor: 'test' stamp: 'PDG 2/18/2021 14:19:52'!
 test06CanCheckoutCartWithOneBookAndValidCreditCard
 
-	| aCashier aCart aCreditCard |
+	| aCashier aCart aCreditCard sales |
 	aCart := self createCart.
 	aCashier := Cashier new.
 	aCreditCard := self createValidCreditCard.
 	
 	aCart add: self bookFromTheEditorial.
 	
-	aCashier checkout: aCart withCreditCard: aCreditCard.
+	sales := aCashier checkout: aCart withCreditCard: aCreditCard.
+	self assert: sales equals: 400.! !
+
+!CashierTest methodsFor: 'test' stamp: 'PDG 2/18/2021 14:23:43'!
+test07CanCheckoutCartWithMoreThanOneBookAndValidCreditCard
+
+	| aCashier aCart aCreditCard sales |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createValidCreditCard.
 	
+	aCart add: self bookFromTheEditorial.
+	aCart add: self bookFromTheEditorial.
 	
-	! !
+	sales := aCashier checkout: aCart withCreditCard: aCreditCard.
+	self assert: sales equals: 800.! !
+
+!CashierTest methodsFor: 'test' stamp: 'PDG 2/18/2021 14:29:25'!
+test08CanCheckoutTwoCartsWithValidCreditCard
+
+	| aCashier cart1 cart2 aCreditCard sales |
+	cart1 := self createCart.
+	cart2 := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createValidCreditCard.
+	
+	cart1 add: self bookFromTheEditorial.
+	cart1 add: self bookFromTheEditorial.
+	cart2 add: self bookFromTheEditorial.
+	
+	sales := aCashier checkout: cart1 withCreditCard: aCreditCard.
+	sales := sales + (aCashier checkout: cart2 withCreditCard: aCreditCard).
+	self assert: sales equals: 1200.! !
+
+!CashierTest methodsFor: 'test' stamp: 'PDG 2/18/2021 14:34:10'!
+test09CannotCheckoutACartTwice
+
+	| aCashier aCart aCreditCard sales |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createValidCreditCard.
+	
+	aCart add: self bookFromTheEditorial.
+	aCart add: self bookFromTheEditorial.
+	
+	sales := aCashier checkout: aCart withCreditCard: aCreditCard.
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: aCashier class CannotCheckoutOnEmptyCartErrorMessage ]! !
 
 
 !CashierTest methodsFor: 'private' stamp: 'ao 2/16/2021 04:27:46'!
@@ -227,11 +270,11 @@ createExpiredCreditCard
 	
 	^ anExpiredCreditCard ! !
 
-!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:18:32'!
+!CashierTest methodsFor: 'private' stamp: 'PDG 2/18/2021 14:20:36'!
 createValidCreditCard
 
 	| aCreditCard |
-	aCreditCard := CreditCard createWithNumber: '0001000200030004' withCardHolder: 'Pepe' withExpirationDate: January/31/2021.
+	aCreditCard := CreditCard createWithNumber: '0001000200030004' withCardHolder: 'Pepe' withExpirationDate: January/31/2022.
 	
 	^ aCreditCard ! !
 
@@ -262,6 +305,16 @@ add: aBook quantity: numberOfBooksToAdd
 	self assertValidNumberOfCopies: numberOfBooksToAdd.
 	
 	books add: aBook withOccurrences: numberOfBooksToAdd.! !
+
+!Cart methodsFor: 'adding' stamp: 'PDG 2/18/2021 13:58:33'!
+booksCatalog
+
+	^ bookCatalog copy! !
+
+!Cart methodsFor: 'adding' stamp: 'PDG 2/18/2021 14:39:27'!
+empty
+
+	books := Bag new.! !
 
 
 !Cart methodsFor: 'accessing' stamp: 'LL 1/20/2021 22:11:43'!
@@ -326,16 +379,23 @@ Object subclass: #Cashier
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cashier methodsFor: 'action' stamp: 'ao 2/18/2021 02:13:26'!
+!Cashier methodsFor: 'action' stamp: 'PDG 2/18/2021 14:35:17'!
 checkout: aCart withCreditCard: creditCard
 
-	| merchantProcessor  |
-	self validateCart: aCart.
-	merchantProcessor := MerchantProcessor new.
+	| merchantProcessor chargedAmount items catalog |
 	
+	self validateCart: aCart.
+	items := aCart contents.
+	catalog := aCart booksCatalog.
+	chargedAmount := 0.
+	items do: [:aBook | chargedAmount := chargedAmount + (catalog at: aBook)].
+	
+	merchantProcessor := MerchantProcessor new.
 	merchantProcessor validateCard: creditCard.
-
-	! !
+	
+	aCart empty.
+	
+	^ chargedAmount.! !
 
 !Cashier methodsFor: 'action' stamp: 'ao 2/18/2021 00:47:41'!
 validateCart: aCart 
