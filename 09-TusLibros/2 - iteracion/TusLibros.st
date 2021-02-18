@@ -87,11 +87,14 @@ bookFromTheEditorial
 
 	^ 'ABC123'! !
 
-!CartTest methodsFor: 'private' stamp: 'LL 1/21/2021 20:09:10'!
+!CartTest methodsFor: 'private' stamp: 'ao 2/18/2021 13:05:16'!
 createCart
 
 	| aCatalog |
-	aCatalog := Set with: self bookFromTheEditorial.
+	
+	aCatalog := Dictionary new.
+	aCatalog add: ( self bookFromTheEditorial ) -> 400.
+	
 	^Cart withCatalog: aCatalog.! !
 
 
@@ -124,31 +127,112 @@ test02CannotCheckoutWithInvalidCreditCardNumber
 	
 	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithInvalidCreditCardNumber ]! !
 
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 12:15:38'!
+test03CannotCheckoutWithAnExpiredCreditCard
+
+	| aCashier aCart aCreditCard |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createExpiredCreditCard.
+	
+	aCart add: self bookFromTheEditorial.
+	
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithExpiredCreditCard ]! !
+
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 12:46:37'!
+test04CannotCheckoutWithInvalidNameOnCreditCard
+
+	| aCashier aCart aCreditCard |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createCreditCardWithInvalidName.
+	
+	aCart add: self bookFromTheEditorial.
+	
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithInvalidNameOnCreditCard ]! !
+
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 12:48:50'!
+test05CannotCheckoutWithEmptyNameOnCreditCard
+
+	| aCashier aCart aCreditCard |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createCreditCardWithEmptyName.
+	
+	aCart add: self bookFromTheEditorial.
+	
+	self should: [ aCashier checkout: aCart withCreditCard: aCreditCard ] raise: Error withExceptionDo: [ :anException | self assert: anException messageText equals: MerchantProcessor CannotCheckoutWithInvalidNameOnCreditCard ]! !
+
+!CashierTest methodsFor: 'test' stamp: 'ao 2/18/2021 13:24:30'!
+test06CanCheckoutCartWithOneBookAndValidCreditCard
+
+	| aCashier aCart aCreditCard |
+	aCart := self createCart.
+	aCashier := Cashier new.
+	aCreditCard := self createValidCreditCard.
+	
+	aCart add: self bookFromTheEditorial.
+	
+	aCashier checkout: aCart withCreditCard: aCreditCard.
+	
+	
+	! !
+
 
 !CashierTest methodsFor: 'private' stamp: 'ao 2/16/2021 04:27:46'!
 bookFromTheEditorial
 
 	^ 'ABC123'! !
 
-!CashierTest methodsFor: 'private' stamp: 'ao 2/16/2021 04:27:18'!
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 13:05:43'!
 createCart
 
 	| aCatalog |
-	aCatalog := Set with: self bookFromTheEditorial.
+	
+	aCatalog := Dictionary new.
+	aCatalog add: ( self bookFromTheEditorial ) -> 400.
+	
 	^Cart withCatalog: aCatalog.! !
 
-!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 00:41:51'!
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:48:20'!
+createCreditCardWithEmptyName
+	
+	| aCreditCardWithEmptyName |
+	aCreditCardWithEmptyName := CreditCard createWithNumber: '0001000200030004' withCardHolder: '' withExpirationDate: December/31/2022.
+	
+	^ aCreditCardWithEmptyName 
+	! !
+
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:43:05'!
+createCreditCardWithInvalidName
+	
+	| aCreditCardWithInvalidName |
+	aCreditCardWithInvalidName := CreditCard createWithNumber: '0001000200030004' withCardHolder: 'Manuel Jose Joaquin del Corazon de Jesus Belgrano' withExpirationDate: December/31/2022.
+	
+	^ aCreditCardWithInvalidName 
+	! !
+
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:18:11'!
 createCreditCardWithInvalidNumber
 
 	| aCreditCard |
-	aCreditCard := 000100020003000.
+	aCreditCard := CreditCard createWithNumber: '000100020003000' withCardHolder: 'PEPE' withExpirationDate: January/31/2022.
 	^ aCreditCard ! !
 
-!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 00:41:46'!
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:18:21'!
+createExpiredCreditCard
+	
+	| anExpiredCreditCard |
+	anExpiredCreditCard := CreditCard createWithNumber: '0001000200030004' withCardHolder: 'PEPE' withExpirationDate: December/31/2020.
+	
+	^ anExpiredCreditCard ! !
+
+!CashierTest methodsFor: 'private' stamp: 'ao 2/18/2021 12:18:32'!
 createValidCreditCard
 
 	| aCreditCard |
-	aCreditCard := 0001000200030004.
+	aCreditCard := CreditCard createWithNumber: '0001000200030004' withCardHolder: 'Pepe' withExpirationDate: January/31/2021.
+	
 	^ aCreditCard ! !
 
 
@@ -201,10 +285,11 @@ isEmpty
 	^books isEmpty! !
 
 
-!Cart methodsFor: 'private - assertions' stamp: 'LL 1/21/2021 20:19:45'!
+!Cart methodsFor: 'private - assertions' stamp: 'ao 2/18/2021 13:03:29'!
 assertIsInCatalog: aBook
 
-	^ (bookCatalog includes: aBook) ifFalse: [ self error: self class bookNotInCatalogErrorMessage ]! !
+	^ bookCatalog at: aBook ifAbsent:[ self error: self class bookNotInCatalogErrorMessage ]
+	"^ (bookCatalog includes: aBook) ifFalse: [ self error: self class bookNotInCatalogErrorMessage ]"! !
 
 !Cart methodsFor: 'private - assertions' stamp: 'LL 1/21/2021 21:27:21'!
 assertValidNumberOfCopies: numberOfBooksToAdd
@@ -269,6 +354,48 @@ CannotCheckoutOnEmptyCartErrorMessage
 	^ 'Cannot checkout on empty cart'! !
 
 
+!classDefinition: #CreditCard category: 'TusLibros'!
+Object subclass: #CreditCard
+	instanceVariableNames: 'number name expirationDate'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!CreditCard methodsFor: 'initialization' stamp: 'ao 2/18/2021 12:35:04'!
+initializeCreateWithNumber: aNumber withCardHolder: aName withExpirationDate: aDate 
+	
+	number := aNumber.
+	name := aName.
+	expirationDate := aDate.! !
+
+
+!CreditCard methodsFor: 'accessing' stamp: 'ao 2/18/2021 12:25:30'!
+expirationDate
+
+	^ expirationDate ! !
+
+!CreditCard methodsFor: 'accessing' stamp: 'ao 2/18/2021 12:44:51'!
+name
+
+	^ name ! !
+
+!CreditCard methodsFor: 'accessing' stamp: 'ao 2/18/2021 12:12:19'!
+number
+	
+	^number! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CreditCard class' category: 'TusLibros'!
+CreditCard class
+	instanceVariableNames: ''!
+
+!CreditCard class methodsFor: 'instance creation' stamp: 'ao 2/18/2021 12:01:47'!
+createWithNumber: aNumber withCardHolder: aName withExpirationDate: aDate
+	
+	^self new initializeCreateWithNumber: aNumber withCardHolder: aName withExpirationDate: aDate! !
+
+
 !classDefinition: #MerchantProcessor category: 'TusLibros'!
 Object subclass: #MerchantProcessor
 	instanceVariableNames: ''
@@ -276,10 +403,12 @@ Object subclass: #MerchantProcessor
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!MerchantProcessor methodsFor: 'action' stamp: 'ao 2/18/2021 02:08:43'!
+!MerchantProcessor methodsFor: 'action' stamp: 'ao 2/18/2021 12:50:26'!
 validateCard: aCreditCard 
 	
-	( aCreditCard decimalDigitLength = 16 ) ifFalse: [ ^ self error: self class CannotCheckoutWithInvalidCreditCardNumber ]! !
+	( aCreditCard number size = 16 ) ifFalse: [ ^ self error: self class CannotCheckoutWithInvalidCreditCardNumber ].
+	( FixedGregorianDate today < aCreditCard expirationDate ) ifFalse: [ ^ self error: self class CannotCheckoutWithExpiredCreditCard ].
+	( aCreditCard name size between: 1 and: 30 ) ifFalse: [ ^ self error: self class CannotCheckoutWithInvalidNameOnCreditCard ]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -287,7 +416,18 @@ validateCard: aCreditCard
 MerchantProcessor class
 	instanceVariableNames: ''!
 
+!MerchantProcessor class methodsFor: 'error handling' stamp: 'ao 2/18/2021 12:16:11'!
+CannotCheckoutWithExpiredCreditCard
+	
+	^ 'Cannot checkout with an expired credit card'! !
+
 !MerchantProcessor class methodsFor: 'error handling' stamp: 'ao 2/18/2021 02:12:12'!
 CannotCheckoutWithInvalidCreditCardNumber
 	
 	^ 'Cannot checkout with invalid credit card number'! !
+
+
+!MerchantProcessor class methodsFor: 'as yet unclassified' stamp: 'ao 2/18/2021 12:46:12'!
+CannotCheckoutWithInvalidNameOnCreditCard
+
+	^ 'Cannot checkout with a credit card with an invalid name'! !
