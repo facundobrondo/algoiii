@@ -252,10 +252,11 @@ TestCase subclass: #InterfaceInTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/24/2021 23:14:27'!
+!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 17:53:32'!
 setUp
 
-	objectsFactory := PublisherTestObjectsFactory new! !
+	objectsFactory := PublisherTestObjectsFactory new.
+	! !
 
 !InterfaceInTest methodsFor: 'test' stamp: 'ao 2/24/2021 02:50:43'!
 test01InterfaceCanCreateANewCart
@@ -300,7 +301,7 @@ test03InterfaceCannotCreateANewCartWithAnInvalidPassword
 
 	! !
 
-!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 00:02:20'!
+!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 17:21:21'!
 test04InterfaceCanAddABookToCart
 
 	| interfaceIn aUserPasswordValidatorForTest cartId |
@@ -313,11 +314,7 @@ test04InterfaceCanAddABookToCart
 	
 	interfaceIn addBook: objectsFactory bookFromTheEditorial toCart: cartId.
 	
-	self assert: ( interfaceIn listCart: cartId ) includes: objectsFactory bookFromTheEditorial
-	
-	
-
-	! !
+	self assert: ( interfaceIn listCart: cartId ) includes: objectsFactory bookFromTheEditorial! !
 
 !InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 00:52:30'!
 test05InterfaceCanAddTwoCopiesOfABookToCart
@@ -372,6 +369,83 @@ test07InterfaceCannotListCartWithInvalidCartId
 
 	! !
 
+!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 18:50:03'!
+test08InterfaceCanCheckoutACart
+
+	| interfaceIn cartId ticket |
+	
+	interfaceIn := InterfaceIn new.
+	
+	cartId := interfaceIn createCartFor: self validClientId withPassword: self validPassword through: self userPasswordValidatorForTest.
+	
+	interfaceIn addBook: objectsFactory bookFromTheEditorial toCart: cartId.
+	
+	ticket := interfaceIn checkoutACart: cartId payingWithNumberCreditCard: self validNumberCreditCard expirationDate: self validExpirationDate ownerName: self validNameOfTheCreditCardOwner through: self MerchantProcessorForTest.
+	
+	
+	self assert: ( interfaceIn listPurchasesFor: self validClientId withPassword: self validPassword through: self userPasswordValidatorForTest) equals: ticket
+	
+	
+	
+	
+	
+	
+	
+
+! !
+
+!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 17:09:55'!
+test09InterfaceCannotListPurchasesWithInvalidClientId
+
+	| interfaceIn cartId |
+	
+	interfaceIn := InterfaceIn new.
+	
+	cartId := interfaceIn createCartFor: self validClientId withPassword: self validPassword through: self userPasswordValidatorForTest.
+	
+	interfaceIn addBook: objectsFactory bookFromTheEditorial toCart: cartId.
+	
+	interfaceIn checkoutACart: cartId payingWithNumberCreditCard: self validNumberCreditCard expirationDate: self validExpirationDate ownerName: self validNameOfTheCreditCardOwner through: self MerchantProcessorForTest.
+	
+	self should: [interfaceIn listPurchasesFor: self invalidClientId withPassword: self validPassword through: self userPasswordValidatorForTest]
+	raise: Error
+	withExceptionDo: [ :anException |			self assert: anException messageText equals: interfaceIn class cannotListPurchasesWithInvalidClientId ]
+	
+	
+	
+	
+	
+	
+	
+	
+
+! !
+
+!InterfaceInTest methodsFor: 'test' stamp: 'ao 2/25/2021 18:33:14'!
+test10ACartCreatedByTheInterfaceInIsNotValidAfterThirtyMinutes
+
+	| interfaceIn cartId |
+	
+	interfaceIn := InterfaceIn new.
+	
+	cartId := interfaceIn createCartFor: self validClientId withPassword: self validPassword through: self userPasswordValidatorForTest.
+	
+	interfaceIn advanceClock: 1800*second.	
+	
+	self should: [ interfaceIn addBook: objectsFactory bookFromTheEditorial toCart: cartId ]
+	raise: Error
+	withExceptionDo: [ :anException |			self assert: anException messageText equals: interfaceIn class theCartIsInvalidAfterThirtyMinutes ]
+	
+	
+	
+	
+	
+	
+	
+	
+
+! !
+
 
 !InterfaceInTest methodsFor: 'private' stamp: 'ao 2/24/2021 22:00:18'!
 invalidClientId
@@ -411,15 +485,40 @@ validPassword
 	^ '1234'! !
 
 
+!InterfaceInTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:20:23'!
+MerchantProcessorForTest
+	
+	^ MerchantProcessorForTest new.
+	! !
+
 !InterfaceInTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 01:02:02'!
 invalidCartId
 	
 	^ 'abcd'! !
 
+!InterfaceInTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:03:16'!
+validExpirationDate
+
+	| nextMonth |
+	
+	nextMonth := (FixedGregorianDate today next: GregorianMonth oneMonth) monthOfYear.
+	
+	^ nextMonth ! !
+
+!InterfaceInTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:03:42'!
+validNameOfTheCreditCardOwner
+
+	^ 'Juan Perez'! !
+
+!InterfaceInTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:02:17'!
+validNumberCreditCard
+	
+	^ '1111'! !
+
 
 !classDefinition: #Cart category: 'TusLibros'!
 Object subclass: #Cart
-	instanceVariableNames: 'books bookCatalog'
+	instanceVariableNames: 'books bookCatalog owner'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -482,6 +581,16 @@ assertValidNumberOfCopies: numberOfBooksToAdd
 contents
 
 	^ books copy! !
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 16:55:35'!
+hasOwner: aOwner 
+	
+	owner := aOwner ! !
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 16:59:47'!
+owner
+	
+	^owner! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -633,7 +742,7 @@ nameCannotBeBlankErrorMessage
 
 !classDefinition: #InterfaceIn category: 'TusLibros'!
 Object subclass: #InterfaceIn
-	instanceVariableNames: 'objectsFactory carts'
+	instanceVariableNames: 'objectsFactory carts cashier salesRecord clock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -654,7 +763,31 @@ addBook: aBook toCart: aCartId quantity: numberOfBooksToAdd
 	
 	^ aCart! !
 
-!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/24/2021 02:46:59'!
+!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:33:54'!
+advanceClock: seconds
+
+
+	
+	! !
+
+!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 16:58:36'!
+checkoutACart: aCartId payingWithNumberCreditCard: aNumber expirationDate: aDate ownerName: aName through: aMerchantProcessor
+
+	| aCart aCreditCard clientId ticket |
+	
+	aCart := carts keyAtValue: aCartId.
+	aCreditCard := CreditCard of: aName number: aNumber expiringOn: aDate.
+	clientId := aCart owner.
+	
+	ticket := cashier checkout: aCart payingWith: aCreditCard through: aMerchantProcessor  on: objectsFactory now.
+	
+	salesRecord add: ticket -> clientId.
+	
+	^ ticket
+	
+	! !
+
+!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 17:53:26'!
 createCartFor: clientId withPassword: password through: userPasswordValidator
 
 	| aCart cartId |
@@ -662,6 +795,8 @@ createCartFor: clientId withPassword: password through: userPasswordValidator
 	userPasswordValidator validateUser: clientId withPassword: password.
 	
 	aCart := objectsFactory anEmptyCart.
+	
+	aCart hasOwner: clientId.
 	
 	cartId := aCart identityHash.
 	
@@ -671,11 +806,17 @@ createCartFor: clientId withPassword: password through: userPasswordValidator
 	
 	! !
 
-!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/22/2021 20:54:45'!
+!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 17:56:14'!
 initialize
 
 	carts := Dictionary new.
-	objectsFactory := PublisherTestObjectsFactory new! !
+	salesRecord := Dictionary new.
+	
+	objectsFactory := PublisherTestObjectsFactory new.
+	cashier := Cashier registeringSalesOn: objectsFactory anEmptySalesBook.
+	clock := DateAndTime now.
+	
+	! !
 
 !InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 01:06:04'!
 listCart: cartId
@@ -688,6 +829,15 @@ listCart: cartId
 	
 
 	! !
+
+!InterfaceIn methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 17:09:18'!
+listPurchasesFor: aClientId withPassword: apassword through: aUserPasswordValidator
+
+	| aTicket |
+	
+	aTicket := salesRecord keyAtValue: aClientId ifAbsent: [ self error: self class cannotListPurchasesWithInvalidClientId ].
+	
+	^ aTicket ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -704,6 +854,29 @@ cannotAddABookWithInvalidCartId
 cannotListCartWithInvalidCartId
 	
 	^ 'Cannot list a cart with invalid CartId'! !
+
+!InterfaceIn class methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 17:07:53'!
+cannotListPurchasesWithInvalidClientId
+	
+	^ 'Cannot list purchases with invalid clientId'! !
+
+!InterfaceIn class methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 17:43:14'!
+theCartIsInvalidAfterThirtyMinutes
+	
+	^ 'The cart is invalid after thirty minutes'! !
+
+
+!classDefinition: #MerchantProcessorForTest category: 'TusLibros'!
+Object subclass: #MerchantProcessorForTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!MerchantProcessorForTest methodsFor: 'as yet unclassified' stamp: 'ao 2/25/2021 18:24:35'!
+debit: anAmount from: aCreditCard 
+	
+	^ true! !
 
 
 !classDefinition: #PublisherTestObjectsFactory category: 'TusLibros'!
